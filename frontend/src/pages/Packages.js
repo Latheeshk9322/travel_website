@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from 'react-query';
-import { packagesAPI } from '../services/api';
-import { Star, Calendar, Users, DollarSign, Search, Grid, List } from 'lucide-react';
+import { packagesAPI, placesAPI } from '../services/api';
+import { Star, Calendar, Users, Search, Grid, List, MapPin } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { formatINRSimple } from '../utils/currencyFormatter';
+import { getUserLocation, getLocationDisplayName } from '../utils/locationDetector';
 
 const Packages = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const placeId = params.get('placeId');
+  const [userLocation, setUserLocation] = useState('Karnataka');
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -21,6 +24,12 @@ const Packages = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Get user location on component mount
+  useEffect(() => {
+    const location = getUserLocation();
+    setUserLocation(location);
+  }, []);
+
   const getFilters = () => {
     const clean = {};
     Object.entries(filters).forEach(([key, value]) => {
@@ -29,10 +38,35 @@ const Packages = () => {
     return clean;
   };
 
-  const { data: packagesData, isLoading, error } = useQuery(
-    ['packages', filters, currentPage, placeId],
-    () => packagesAPI.getAll({ ...getFilters(), ...(placeId ? { placeId } : {}), page: currentPage, limit: 12 })
+  // Get place details if placeId is provided
+  const { data: placeData } = useQuery(
+    ['place', placeId],
+    () => placesAPI.getById(placeId),
+    { enabled: !!placeId }
   );
+
+  // Get place packages if placeId is provided
+  const { data: placePackagesData } = useQuery(
+    ['place-packages', placeId, userLocation],
+    () => placesAPI.getPackages(placeId, userLocation),
+    { enabled: !!placeId }
+  );
+
+  // Get all packages or place-specific packages
+  const { data: packagesData, isLoading, error } = useQuery(
+    ['packages', filters, currentPage, placeId, userLocation],
+    () => packagesAPI.getAll({ 
+      ...getFilters(), 
+      ...(placeId ? { placeId } : {}), 
+      page: currentPage, 
+      limit: 12,
+      location: userLocation
+    }),
+    { enabled: !placeId } // Only fetch all packages if no placeId
+  );
+
+  // Use place packages if available, otherwise use all packages
+  const displayData = placeId ? placePackagesData : packagesData;
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -68,10 +102,38 @@ const Packages = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Travel Packages</h1>
-          <p className="text-gray-600">
-            Discover curated travel experiences and adventures
-          </p>
+          {placeId && placeData ? (
+            <div>
+              <div className="flex items-center mb-4">
+                <Link to="/places" className="text-blue-600 hover:text-blue-700 mr-2">
+                  ← Back to Places
+                </Link>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Packages for {placeData.name}
+              </h1>
+              <div className="flex items-center text-gray-600 mb-2">
+                <MapPin className="w-4 h-4 mr-1" />
+                <span>{placeData.city}, {placeData.country}</span>
+              </div>
+              <p className="text-gray-600">
+                Discover amazing travel experiences in {placeData.name}
+              </p>
+              <div className="mt-2 text-sm text-gray-500">
+                Showing prices for: <span className="font-medium">{getLocationDisplayName(userLocation)}</span>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Travel Packages</h1>
+              <p className="text-gray-600">
+                Discover curated travel experiences and adventures
+              </p>
+              <div className="mt-2 text-sm text-gray-500">
+                Showing prices for: <span className="font-medium">{getLocationDisplayName(userLocation)}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Filters and Search */}
@@ -201,14 +263,18 @@ const Packages = () => {
             {/* Results Count */}
             <div className="mb-6">
               <p className="text-gray-600">
-                Showing {packagesData?.packages?.length || 0} of {packagesData?.total || 0} packages
+                Showing {displayData?.packages?.length || 0} of {displayData?.total || 0} packages
+                {placeId && placeData && (
+                  <span className="text-blue-600 ml-2">for {placeData.name}</span>
+                )}
+                {!displayData && <span className="text-orange-500 ml-2">(Using sample data)</span>}
               </p>
             </div>
 
             {/* Packages Grid/List */}
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {packagesData?.packages?.map((pkg) => (
+                {displayData?.packages?.map((pkg) => (
                   <Link
                     key={pkg.id}
                     to={`/packages/${pkg.id}`}
@@ -229,7 +295,7 @@ const Packages = () => {
                         <div className="flex items-center space-x-1 bg-white bg-opacity-90 rounded-full px-2 py-1">
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
                           <span className="text-sm font-medium">
-                            {pkg.averageRating.toFixed(1)}
+                            {parseFloat(pkg.averageRating || 0).toFixed(1)}
                           </span>
                         </div>
                       </div>
@@ -253,14 +319,14 @@ const Packages = () => {
                       </p>
                       <div className="flex items-center justify-between">
                         <div className="text-xl font-bold text-primary-600">
-                          ${pkg.currentPrice}
+                          {formatINRSimple(pkg.currentPrice)}
                           <span className="text-sm font-normal text-gray-500">
                             {pkg.pricing.perPerson ? ' /person' : ''}
                           </span>
                         </div>
                         {pkg.originalPrice > pkg.currentPrice && (
                           <div className="text-sm text-gray-500 line-through">
-                            ${pkg.originalPrice}
+                            {formatINRSimple(pkg.originalPrice)}
                           </div>
                         )}
                       </div>
@@ -270,7 +336,7 @@ const Packages = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {packagesData?.packages?.map((pkg) => (
+                {displayData?.packages?.map((pkg) => (
                   <Link
                     key={pkg.id}
                     to={`/packages/${pkg.id}`}
@@ -308,18 +374,18 @@ const Packages = () => {
                             <div className="flex items-center space-x-1 mb-2">
                               <Star className="w-4 h-4 text-yellow-400 fill-current" />
                               <span className="text-sm font-medium">
-                                {pkg.averageRating.toFixed(1)}
+                                {parseFloat(pkg.averageRating || 0).toFixed(1)}
                               </span>
                             </div>
                             <div className="text-2xl font-bold text-primary-600">
-                              ${pkg.currentPrice}
+                              {formatINRSimple(pkg.currentPrice)}
                               <span className="text-sm font-normal text-gray-500">
                                 {pkg.pricing.perPerson ? ' /person' : ''}
                               </span>
                             </div>
                             {pkg.originalPrice > pkg.currentPrice && (
                               <div className="text-sm text-gray-500 line-through">
-                                ${pkg.originalPrice}
+                                {formatINRSimple(pkg.originalPrice)}
                               </div>
                             )}
                             <span className="badge-primary capitalize text-xs mt-2">
@@ -335,7 +401,7 @@ const Packages = () => {
             )}
 
             {/* Pagination */}
-            {packagesData?.totalPages > 1 && (
+            {displayData?.totalPages > 1 && (
               <div className="mt-8 flex justify-center">
                 <nav className="flex items-center space-x-2">
                   <button
@@ -346,7 +412,7 @@ const Packages = () => {
                     Previous
                   </button>
                   
-                  {Array.from({ length: Math.min(5, packagesData.totalPages) }, (_, i) => {
+                  {Array.from({ length: Math.min(5, displayData.totalPages) }, (_, i) => {
                     const page = i + 1;
                     return (
                       <button
@@ -364,8 +430,8 @@ const Packages = () => {
                   })}
                   
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(packagesData.totalPages, prev + 1))}
-                    disabled={currentPage === packagesData.totalPages}
+                    onClick={() => setCurrentPage(prev => Math.min(displayData.totalPages, prev + 1))}
+                    disabled={currentPage === displayData.totalPages}
                     className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next

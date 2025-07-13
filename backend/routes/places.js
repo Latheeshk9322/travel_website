@@ -1,11 +1,22 @@
 const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const Place = require('../models/Place');
+const Package = require('../models/Package');
 const { protect, admin, optionalAuth } = require('../middleware/auth');
 const { uploadMultiple } = require('../middleware/upload');
 const { Op } = require('sequelize');
 
 const router = express.Router();
+
+// Helper function to calculate location-based pricing
+const calculateLocationBasedPrice = (package, userLocation = 'default') => {
+  if (!package.locationBasedPricing) {
+    return package.currentPrice;
+  }
+  
+  const multiplier = package.locationBasedPricing[userLocation] || package.locationBasedPricing.default || 1.0;
+  return Math.round(package.currentPrice * multiplier);
+};
 
 // @route   GET /api/places
 // @desc    Get all places with filtering and pagination
@@ -146,6 +157,53 @@ router.get('/:id', optionalAuth, async (req, res) => {
     res.json(place);
   } catch (error) {
     console.error('Get place error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/places/:id/packages
+// @desc    Get packages for a specific place
+// @access  Public
+router.get('/:id/packages', optionalAuth, async (req, res) => {
+  try {
+    const place = await Place.findByPk(req.params.id);
+
+    if (!place) {
+      return res.status(404).json({ message: 'Place not found' });
+    }
+
+    // Get packages for this place
+    const packages = await Package.findAll({
+      where: { 
+        placeId: req.params.id,
+        isActive: true 
+      },
+      order: [['rating', 'DESC']],
+      limit: 10
+    });
+
+    // Apply location-based pricing
+    const userLocation = req.user?.location || req.query.location || 'default';
+    const transformedPackages = packages.map(pkg => {
+      const pkgData = pkg.toJSON();
+      const locationBasedPrice = calculateLocationBasedPrice(pkg, userLocation);
+      
+      return {
+        ...pkgData,
+        currentPrice: locationBasedPrice,
+        originalPrice: Math.round(pkgData.originalPrice * (locationBasedPrice / pkgData.currentPrice)),
+        locationBasedPricing: pkgData.locationBasedPricing,
+        userLocation: userLocation
+      };
+    });
+
+    res.json({
+      place: place,
+      packages: transformedPackages,
+      total: transformedPackages.length
+    });
+  } catch (error) {
+    console.error('Get place packages error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

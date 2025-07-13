@@ -23,6 +23,7 @@ import Contact from './pages/Contact';
 import Profile from './pages/user/Profile';
 import Favorites from './pages/user/Favorites';
 import Reviews from './pages/user/Reviews';
+import Bookings from './pages/user/Bookings';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -56,6 +57,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="favorites" element={<Favorites />} />
           <Route path="reviews" element={<Reviews />} />
+          <Route path="bookings" element={<Bookings />} />
         </Route>
 
         {/* Admin Routes */}

@@ -55,6 +55,22 @@ const Package = sequelize.define('Package', {
       excludes: []
     }
   },
+  locationBasedPricing: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: {
+      Karnataka: 1.0, // Base price multiplier for Karnataka
+      Maharashtra: 1.1,
+      TamilNadu: 1.05,
+      Kerala: 1.0,
+      Delhi: 1.2,
+      Rajasthan: 1.15,
+      UttarPradesh: 1.1,
+      Gujarat: 1.05,
+      WestBengal: 1.1,
+      default: 1.0
+    }
+  },
   duration: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -106,6 +122,14 @@ const Package = sequelize.define('Package', {
   featured: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  placeId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Places',
+      key: 'id'
+    }
   }
 }, {
   timestamps: true,

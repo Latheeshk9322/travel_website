@@ -36,76 +36,269 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  login: (email, password) => api.post('/auth/login', { email, password }),
-  register: (userData) => api.post('/auth/register', userData),
-  getProfile: () => api.get('/auth/me'),
-  updateProfile: (profileData) => api.put('/auth/profile', profileData),
-  changePassword: (currentPassword, newPassword) =>
-    api.post('/auth/change-password', { currentPassword, newPassword }),
+  login: async (email, password) => {
+    const response = await api.post('/auth/login', { email, password });
+    return response.data;
+  },
+  register: async (userData) => {
+    const response = await api.post('/auth/register', userData);
+    return response.data;
+  },
+  getProfile: async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
+  },
+  updateProfile: async (profileData) => {
+    const response = await api.put('/users/profile', profileData);
+    return response.data;
+  },
+  changePassword: async (currentPassword, newPassword) => {
+    const response = await api.put('/auth/password', { currentPassword, newPassword });
+    return response.data;
+  },
 };
 
 // Places API
 export const placesAPI = {
-  getAll: (params) => api.get('/places', { params }),
-  getById: (id) => api.get(`/places/${id}`),
-  getFeatured: () => api.get('/places/featured'),
-  getCategories: () => api.get('/places/categories'),
-  create: (placeData) => api.post('/places', placeData),
-  update: (id, placeData) => api.put(`/places/${id}`, placeData),
-  delete: (id) => api.delete(`/places/${id}`),
-  toggleFeature: (id) => api.post(`/admin/places/${id}/feature`),
+  getAll: async (params) => {
+    const response = await api.get('/places', { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/places/${id}`);
+    return response.data;
+  },
+  getPackages: async (id, location = 'Karnataka') => {
+    const response = await api.get(`/places/${id}/packages`, { 
+      params: { location } 
+    });
+    return response.data;
+  },
+  getFeatured: async () => {
+    const response = await api.get('/places/featured');
+    return response.data;
+  },
+  getCategories: async () => {
+    const response = await api.get('/places/categories');
+    return response.data;
+  },
+  create: async (placeData) => {
+    const response = await api.post('/places', placeData);
+    return response.data;
+  },
+  update: async (id, placeData) => {
+    const response = await api.put(`/places/${id}`, placeData);
+    return response.data;
+  },
+  delete: async (id) => {
+    const response = await api.delete(`/places/${id}`);
+    return response.data;
+  },
+  toggleFeature: async (id) => {
+    const response = await api.post(`/admin/places/${id}/feature`);
+    return response.data;
+  },
 };
 
 // Packages API
 export const packagesAPI = {
-  getAll: (params) => api.get('/packages', { params }),
-  getById: (id) => api.get(`/packages/${id}`),
-  getFeatured: () => api.get('/packages/featured'),
-  getCategories: () => api.get('/packages/categories'),
-  create: (packageData) => api.post('/packages', packageData),
-  update: (id, packageData) => api.put(`/packages/${id}`, packageData),
-  delete: (id) => api.delete(`/packages/${id}`),
-  addDiscount: (id, discountData) => api.post(`/packages/${id}/discounts`, discountData),
-  updateDiscount: (id, discountId, discountData) =>
-    api.put(`/packages/${id}/discounts/${discountId}`, discountData),
-  removeDiscount: (id, discountId) => api.delete(`/packages/${id}/discounts/${discountId}`),
-  toggleFeature: (id) => api.post(`/admin/packages/${id}/feature`),
+  getAll: async (params) => {
+    const response = await api.get('/packages', { params });
+    return response.data;
+  },
+  getById: async (id, location = 'Karnataka') => {
+    const response = await api.get(`/packages/${id}`, { 
+      params: { location } 
+    });
+    return response.data;
+  },
+  getFeatured: async (location = 'Karnataka') => {
+    const response = await api.get('/packages/featured', { 
+      params: { location } 
+    });
+    return response.data;
+  },
+  getCategories: async () => {
+    const response = await api.get('/packages/categories');
+    return response.data;
+  },
+  create: async (packageData) => {
+    const response = await api.post('/packages', packageData);
+    return response.data;
+  },
+  update: async (id, packageData) => {
+    const response = await api.put(`/packages/${id}`, packageData);
+    return response.data;
+  },
+  delete: async (id) => {
+    const response = await api.delete(`/packages/${id}`);
+    return response.data;
+  },
+  addDiscount: async (id, discountData) => {
+    const response = await api.post(`/packages/${id}/discounts`, discountData);
+    return response.data;
+  },
+  updateDiscount: async (id, discountId, discountData) => {
+    const response = await api.put(`/packages/${id}/discounts/${discountId}`, discountData);
+    return response.data;
+  },
+  removeDiscount: async (id, discountId) => {
+    const response = await api.delete(`/packages/${id}/discounts/${discountId}`);
+    return response.data;
+  },
+  toggleFeature: async (id) => {
+    const response = await api.post(`/admin/packages/${id}/feature`);
+    return response.data;
+  },
 };
 
 // Reviews API
 export const reviewsAPI = {
-  getAll: (params) => api.get('/reviews', { params }),
-  getById: (id) => api.get(`/reviews/${id}`),
-  getByUser: (userId, params) => api.get(`/reviews/user/${userId}`, { params }),
-  create: (reviewData) => api.post('/reviews', reviewData),
-  update: (id, reviewData) => api.put(`/reviews/${id}`, reviewData),
-  delete: (id) => api.delete(`/reviews/${id}`),
-  markHelpful: (id, helpful) => api.post(`/reviews/${id}/helpful`, { helpful }),
-  moderate: (id, moderationData) => api.put(`/reviews/${id}/moderate`, moderationData),
+  getAll: async (params) => {
+    const response = await api.get('/reviews', { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/reviews/${id}`);
+    return response.data;
+  },
+  getByUser: async (userId, params) => {
+    const response = await api.get(`/reviews/user/${userId}`, { params });
+    return response.data;
+  },
+  create: async (reviewData) => {
+    const response = await api.post('/reviews', reviewData);
+    return response.data;
+  },
+  update: async (id, reviewData) => {
+    const response = await api.put(`/reviews/${id}`, reviewData);
+    return response.data;
+  },
+  delete: async (id) => {
+    const response = await api.delete(`/reviews/${id}`);
+    return response.data;
+  },
+  markHelpful: async (id, helpful) => {
+    const response = await api.post(`/reviews/${id}/helpful`, { helpful });
+    return response.data;
+  },
+  moderate: async (id, moderationData) => {
+    const response = await api.put(`/reviews/${id}/moderate`, moderationData);
+    return response.data;
+  },
 };
 
 // Users API
 export const usersAPI = {
-  getProfile: () => api.get('/users/profile'),
-  updateProfile: (profileData) => api.put('/users/profile', profileData),
-  getFavorites: () => api.get('/users/favorites'),
-  addToFavorites: (placeId) => api.post(`/users/favorites/${placeId}`),
-  removeFromFavorites: (placeId) => api.delete(`/users/favorites/${placeId}`),
-  updateNotifications: (notifications) => api.put('/users/notifications', { notifications }),
+  getProfile: async () => {
+    const response = await api.get('/users/profile');
+    return response.data;
+  },
+  updateProfile: async (profileData) => {
+    const response = await api.put('/users/profile', profileData);
+    return response.data;
+  },
+  getFavorites: async () => {
+    const response = await api.get('/users/favorites');
+    return response.data;
+  },
+  addToFavorites: async (placeId) => {
+    const response = await api.post(`/users/favorites/${placeId}`);
+    return response.data;
+  },
+  removeFromFavorites: async (placeId) => {
+    const response = await api.delete(`/users/favorites/${placeId}`);
+    return response.data;
+  },
+  updateNotifications: async (notifications) => {
+    const response = await api.put('/users/notifications', { notifications });
+    return response.data;
+  },
   // Admin only
-  getAll: (params) => api.get('/users', { params }),
-  getById: (id) => api.get(`/users/${id}`),
-  updateRole: (id, role) => api.put(`/users/${id}/role`, { role }),
+  getAll: async (params) => {
+    const response = await api.get('/users', { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/users/${id}`);
+    return response.data;
+  },
+  updateRole: async (id, role) => {
+    const response = await api.put(`/users/${id}/role`, { role });
+    return response.data;
+  },
 };
 
 // Admin API
 export const adminAPI = {
-  getDashboard: () => api.get('/admin/dashboard'),
-  getPendingReviews: (params) => api.get('/admin/reviews/pending', { params }),
-  getReviewStats: () => api.get('/admin/reviews/stats'),
-  getPlaceStats: () => api.get('/admin/places/stats'),
-  getPackageStats: () => api.get('/admin/packages/stats'),
-  getUserStats: () => api.get('/admin/users/stats'),
+  getDashboard: async () => {
+    const response = await api.get('/admin/dashboard');
+    return response.data;
+  },
+  getUsers: async (params) => {
+    const response = await api.get('/admin/users', { params });
+    return response.data;
+  },
+  getPlaces: async (params) => {
+    const response = await api.get('/admin/places', { params });
+    return response.data;
+  },
+  getPackages: async (params) => {
+    const response = await api.get('/admin/packages', { params });
+    return response.data;
+  },
+  getReviews: async (params) => {
+    const response = await api.get('/admin/reviews', { params });
+    return response.data;
+  },
+  createPackage: async (packageData) => {
+    const response = await api.post('/admin/packages', packageData);
+    return response.data;
+  },
+  updatePackage: async (id, packageData) => {
+    const response = await api.put(`/admin/packages/${id}`, packageData);
+    return response.data;
+  },
+  deletePackage: async (id) => {
+    const response = await api.delete(`/admin/packages/${id}`);
+    return response.data;
+  },
+  togglePackageFeature: async (id) => {
+    const response = await api.post(`/admin/packages/${id}/feature`);
+    return response.data;
+  },
+  approveReview: async (id) => {
+    const response = await api.put(`/admin/reviews/${id}/approve`);
+    return response.data;
+  },
+  rejectReview: async (id) => {
+    const response = await api.put(`/admin/reviews/${id}/reject`);
+    return response.data;
+  },
+  togglePlaceStatus: async (id) => {
+    const response = await api.put(`/admin/places/${id}/toggle`);
+    return response.data;
+  },
+  getPendingReviews: async (params) => {
+    const response = await api.get('/admin/reviews/pending', { params });
+    return response.data;
+  },
+  getReviewStats: async () => {
+    const response = await api.get('/admin/reviews/stats');
+    return response.data;
+  },
+  getPlaceStats: async () => {
+    const response = await api.get('/admin/places/stats');
+    return response.data;
+  },
+  getPackageStats: async () => {
+    const response = await api.get('/admin/packages/stats');
+    return response.data;
+  },
+  getUserStats: async () => {
+    const response = await api.get('/admin/users/stats');
+    return response.data;
+  },
 };
 
 // File upload helper
@@ -126,6 +319,26 @@ export const uploadFile = async (file, onProgress) => {
       }
     },
   });
+};
+
+// Bookings API
+export const bookingsAPI = {
+  createBooking: async (data) => {
+    const response = await api.post('/bookings', data);
+    return response.data;
+  },
+  createStripePaymentIntent: async (bookingId) => {
+    const response = await api.post(`/bookings/${bookingId}/stripe-payment-intent`);
+    return response.data;
+  },
+  payBooking: async (bookingId, paymentData) => {
+    const response = await api.post(`/bookings/${bookingId}/payment`, paymentData);
+    return response.data;
+  },
+  getUserBookings: async () => {
+    const response = await api.get('/bookings');
+    return response.data;
+  },
 };
 
 export default api; 

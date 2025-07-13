@@ -106,15 +106,8 @@ const Booking = sequelize.define('Booking', {
     }
   ],
   hooks: {
-    beforeCreate: (booking) => {
-      // Generate booking number
-      if (!booking.bookingNumber) {
-        const timestamp = Date.now().toString().slice(-8);
-        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        booking.bookingNumber = `BK${timestamp}${random}`;
-      }
-      
-      // Calculate final amount
+    beforeValidate: (booking) => {
+      // Calculate final amount only
       if (booking.totalAmount && booking.discountAmount) {
         booking.finalAmount = booking.totalAmount - booking.discountAmount;
       } else if (booking.totalAmount) {

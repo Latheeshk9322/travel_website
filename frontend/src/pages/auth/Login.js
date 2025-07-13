@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,9 +21,11 @@ const Login = () => {
   const from = location.state?.from?.pathname || '/';
 
   const onSubmit = async (data) => {
+    console.log('Form submitted with data:', data);
     setIsLoading(true);
     try {
       const result = await login(data.email, data.password);
+      console.log('Login result:', result);
       if (result.success) {
         navigate(from, { replace: true });
       }
@@ -165,6 +168,16 @@ const Login = () => {
                 Sign up here
               </Link>
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                toast.success('Test toast notification!');
+                console.log('Test button clicked');
+              }}
+              className="mt-4 text-sm text-blue-600 hover:text-blue-500"
+            >
+              Test Toast Notification
+            </button>
           </div>
         </form>
       </div>

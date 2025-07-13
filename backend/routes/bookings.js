@@ -3,6 +3,7 @@ const { body, validationResult, query } = require('express-validator');
 const Booking = require('../models/Booking');
 const Package = require('../models/Package');
 const { protect, admin } = require('../middleware/auth');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const router = express.Router();
 
@@ -67,7 +68,9 @@ router.post('/', protect, [
   body('contactInfo').isObject().withMessage('Contact info is required'),
   body('contactInfo.name').notEmpty().withMessage('Contact name is required'),
   body('contactInfo.email').isEmail().withMessage('Contact email must be valid'),
-  body('contactInfo.phone').notEmpty().withMessage('Contact phone is required'),
+  body('contactInfo.phone')
+    .matches(/^[6-9]\d{9}$/)
+    .withMessage('Contact phone must be a valid 10-digit Indian mobile number'),
   body('specialRequests').optional().isString().withMessage('Special requests must be a string')
 ], async (req, res) => {
   try {
@@ -89,10 +92,16 @@ router.post('/', protect, [
     const discountAmount = 0; // Can be calculated based on seasonal discounts
     const finalAmount = totalAmount - discountAmount;
 
+    // Generate booking number
+    const timestamp = Date.now().toString().slice(-8);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const bookingNumber = `BK${timestamp}${random}`;
+
     // Create booking
-    const booking = await Booking.create({
+    console.log('Creating booking with data:', {
       userId: req.user.id,
       packageId,
+      bookingNumber,
       numberOfPeople,
       totalAmount,
       discountAmount,
@@ -101,6 +110,27 @@ router.post('/', protect, [
       contactInfo,
       specialRequests
     });
+
+    const bookingData = {
+      userId: req.user.id,
+      packageId,
+      bookingNumber,
+      numberOfPeople,
+      totalAmount,
+      discountAmount,
+      finalAmount,
+      travelDate: new Date(travelDate),
+      contactInfo,
+      specialRequests
+    };
+
+    console.log('Final booking data object:', bookingData);
+    console.log('Booking number value:', bookingData.bookingNumber);
+    console.log('Booking number type:', typeof bookingData.bookingNumber);
+
+    const booking = await Booking.create(bookingData);
+
+    console.log('Booking created successfully:', booking.id);
 
     res.status(201).json({
       success: true,
@@ -217,6 +247,109 @@ router.post('/:id/payment', protect, [
   } catch (error) {
     console.error('Payment error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Stripe webhook to handle payment confirmations
+router.post('/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'checkout.session.completed':
+      const session = event.data.object;
+      const bookingId = session.metadata.bookingId;
+      
+      try {
+        const booking = await Booking.findByPk(bookingId);
+        if (booking) {
+          await booking.update({
+            paymentStatus: 'paid',
+            paymentMethod: 'card',
+            paymentId: session.payment_intent,
+            status: 'confirmed'
+          });
+          console.log(`Payment completed for booking ${bookingId}`);
+        }
+      } catch (error) {
+        console.error('Error updating booking after payment:', error);
+      }
+      break;
+      
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  res.json({ received: true });
+});
+
+// Create Stripe payment intent for booking
+router.post('/:id/stripe-payment-intent', protect, async (req, res) => {
+  try {
+    const booking = await Booking.findOne({
+      where: { id: req.params.id, userId: req.user.id },
+      include: [
+        {
+          model: Package,
+          attributes: ['id', 'name', 'primaryImage']
+        }
+      ]
+    });
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    
+    if (booking.paymentStatus === 'paid') {
+      return res.status(400).json({ message: 'Payment already completed' });
+    }
+
+    // Create Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'inr',
+            product_data: {
+              name: booking.Package.name,
+              images: [booking.Package.primaryImage],
+            },
+            unit_amount: Math.round(Number(booking.finalAmount) * 100), // Convert to paise
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/user/bookings?success=true&booking_id=${booking.id}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/packages/${booking.packageId}?canceled=true`,
+      metadata: {
+        bookingId: booking.id.toString(),
+        userId: req.user.id.toString(),
+      },
+      customer_email: req.user.email,
+    });
+
+    res.json({
+      success: true,
+      sessionId: session.id,
+      checkoutUrl: session.url,
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+      bookingId: booking.id,
+      amount: booking.finalAmount,
+      currency: 'inr'
+    });
+  } catch (error) {
+    console.error('Stripe payment intent error:', error);
+    res.status(500).json({ message: 'Failed to create Stripe payment session' });
   }
 });
 

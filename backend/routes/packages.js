@@ -8,6 +8,16 @@ const { Op } = require('sequelize');
 
 const router = express.Router();
 
+// Helper function to calculate location-based pricing
+const calculateLocationBasedPrice = (package, userLocation = 'default') => {
+  if (!package.locationBasedPricing) {
+    return package.currentPrice;
+  }
+  
+  const multiplier = package.locationBasedPricing[userLocation] || package.locationBasedPricing.default || 1.0;
+  return Math.round(package.currentPrice * multiplier);
+};
+
 // @route   GET /api/packages
 // @desc    Get all packages with filtering and pagination
 // @access  Public
@@ -40,10 +50,11 @@ router.get('/', optionalAuth, [
     
     if (req.query.featured) where.featured = req.query.featured === 'true';
     if (req.query.category) where.category = req.query.category;
-    if (req.query.placeId) {
-      // destinations is an array of place IDs
-      where.destinations = { [Op.contains]: [parseInt(req.query.placeId)] };
-    }
+    // Note: placeId filtering is disabled because destinations contain place names, not place IDs
+    // TODO: Update destinations to store place IDs instead of names for proper filtering
+    // if (req.query.placeId) {
+    //   where.destinations = sequelize.literal(`destinations::jsonb @> '["${parseInt(req.query.placeId)}"]'::jsonb`);
+    // }
 
     // Build search query
     if (req.query.search) {
@@ -125,12 +136,19 @@ router.get('/', optionalAuth, [
     // No post-query filtering needed since all filters are applied at database level
     const filteredPackages = packages;
 
-    // Transform packages to match frontend expectations
+    // Transform packages to match frontend expectations with location-based pricing
     const transformedPackages = filteredPackages.map(pkg => {
       const pkgData = pkg.toJSON();
+      const userLocation = req.user?.location || req.query.location || 'default';
+      const locationBasedPrice = calculateLocationBasedPrice(pkg, userLocation);
+      
       return {
         ...pkgData,
-        destinations: pkgData.destinations || []
+        destinations: pkgData.destinations || [],
+        currentPrice: locationBasedPrice,
+        originalPrice: Math.round(pkgData.originalPrice * (locationBasedPrice / pkgData.currentPrice)),
+        locationBasedPricing: pkgData.locationBasedPricing,
+        userLocation: userLocation
       };
     });
 
@@ -161,12 +179,19 @@ router.get('/featured', async (req, res) => {
       limit: 6
     });
 
-    // Transform packages to match frontend expectations
+    // Transform packages to match frontend expectations with location-based pricing
     const transformedPackages = featuredPackages.map(pkg => {
       const pkgData = pkg.toJSON();
+      const userLocation = req.query.location || 'default';
+      const locationBasedPrice = calculateLocationBasedPrice(pkg, userLocation);
+      
       return {
         ...pkgData,
-        destinations: pkgData.destinations || []
+        destinations: pkgData.destinations || [],
+        currentPrice: locationBasedPrice,
+        originalPrice: Math.round(pkgData.originalPrice * (locationBasedPrice / pkgData.currentPrice)),
+        locationBasedPricing: pkgData.locationBasedPricing,
+        userLocation: userLocation
       };
     });
 
@@ -188,7 +213,20 @@ router.get('/:id', optionalAuth, async (req, res) => {
       return res.status(404).json({ message: 'Package not found' });
     }
 
-    res.json(package);
+    // Apply location-based pricing
+    const userLocation = req.user?.location || req.query.location || 'default';
+    const locationBasedPrice = calculateLocationBasedPrice(package, userLocation);
+    
+    const packageData = package.toJSON();
+    const transformedPackage = {
+      ...packageData,
+      currentPrice: locationBasedPrice,
+      originalPrice: Math.round(packageData.originalPrice * (locationBasedPrice / packageData.currentPrice)),
+      locationBasedPricing: packageData.locationBasedPricing,
+      userLocation: userLocation
+    };
+
+    res.json(transformedPackage);
   } catch (error) {
     console.error('Get package error:', error);
     res.status(500).json({ message: 'Server error' });

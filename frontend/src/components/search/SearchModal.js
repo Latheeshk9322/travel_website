@@ -3,6 +3,7 @@ import { X, Search, MapPin, Package } from 'lucide-react';
 import { useQuery } from 'react-query';
 import { placesAPI, packagesAPI } from '../../services/api';
 import { Link } from 'react-router-dom';
+import { formatINRSimple } from '../../utils/currencyFormatter';
 
 const SearchModal = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
@@ -149,7 +150,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                             <div className="flex items-center space-x-1">
                               <span className="text-yellow-400">★</span>
                               <span className="text-sm text-gray-600">
-                                {place.averageRating.toFixed(1)}
+                                {parseFloat(place.averageRating || 0).toFixed(1)}
                               </span>
                             </div>
                           </div>
@@ -190,12 +191,12 @@ const SearchModal = ({ isOpen, onClose }) => {
                           </div>
                           <div className="text-right">
                             <div className="text-sm font-medium text-primary-600">
-                              ${pkg.currentPrice}
+                              {formatINRSimple(pkg.currentPrice)}
                             </div>
                             <div className="flex items-center space-x-1">
                               <span className="text-yellow-400">★</span>
                               <span className="text-sm text-gray-600">
-                                {pkg.averageRating.toFixed(1)}
+                                {parseFloat(pkg.averageRating || 0).toFixed(1)}
                               </span>
                             </div>
                           </div>

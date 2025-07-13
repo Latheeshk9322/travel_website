@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { placesAPI } from '../services/api';
-import { Star, MapPin, Filter, Search, Grid, List } from 'lucide-react';
+import { Star, MapPin, Search, Grid, List } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const Places = () => {
@@ -15,7 +15,6 @@ const Places = () => {
     sortOrder: 'asc',
   });
   const [viewMode, setViewMode] = useState('grid');
-  const [currentPage, setCurrentPage] = useState(1);
 
   const getFilters = () => {
     const clean = {};
@@ -26,24 +25,19 @@ const Places = () => {
   };
 
   const { data: placesData, isLoading, error } = useQuery(
-    ['places', filters, currentPage],
-    () => placesAPI.getAll({ ...getFilters(), page: currentPage, limit: 12 }),
+    ['places', filters],
+    () => placesAPI.getAll({ ...getFilters() }),
     {
       retry: 3,
       retryDelay: 1000,
       onError: (error) => {
         console.error('Places API Error:', error);
-      },
-      // Add mock data fallback for development
-      onSuccess: (data) => {
-        console.log('Places data loaded:', data);
       }
     }
   );
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
   };
 
   const clearFilters = () => {
@@ -55,75 +49,47 @@ const Places = () => {
       sortBy: 'name',
       sortOrder: 'asc',
     });
-    setCurrentPage(1);
   };
 
-  // Mock data fallback when API fails
-  const mockPlaces = [
+  // Fallback data if API fails
+  const fallbackPlaces = [
     {
       id: 1,
-      name: "Santorini, Greece",
-      category: "beach",
-      location: { city: "Santorini", country: "Greece" },
-      primaryImage: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=500",
-      shortDescription: "Beautiful Greek island known for its stunning sunsets and white-washed buildings.",
+      name: "Taj Mahal",
+      category: "historical",
+      location: { city: "Agra", country: "India" },
+      primaryImage: "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800",
+      shortDescription: "Experience the eternal symbol of love in all its grandeur.",
       averageRating: 4.8
     },
     {
       id: 2,
-      name: "Machu Picchu, Peru",
-      category: "historical",
-      location: { city: "Cusco", country: "Peru" },
-      primaryImage: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=500",
-      shortDescription: "Ancient Incan citadel set high in the Andes Mountains.",
-      averageRating: 4.9
-    },
-    {
-      id: 3,
-      name: "Tokyo, Japan",
-      category: "city",
-      location: { city: "Tokyo", country: "Japan" },
-      primaryImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=500",
-      shortDescription: "Vibrant metropolis blending traditional culture with modern innovation.",
-      averageRating: 4.7
-    },
-    {
-      id: 4,
-      name: "Banff National Park, Canada",
-      category: "nature",
-      location: { city: "Banff", country: "Canada" },
-      primaryImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500",
-      shortDescription: "Breathtaking mountain landscapes and pristine wilderness.",
-      averageRating: 4.6
-    },
-    {
-      id: 5,
-      name: "Bali, Indonesia",
+      name: "Goa Beaches",
       category: "beach",
-      location: { city: "Bali", country: "Indonesia" },
-      primaryImage: "https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=500",
-      shortDescription: "Tropical paradise with beautiful beaches and rich culture.",
+      location: { city: "Panaji", country: "India" },
+      primaryImage: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+      shortDescription: "Sun, sand, and sea in India's party capital.",
       averageRating: 4.5
     },
     {
-      id: 6,
-      name: "Swiss Alps, Switzerland",
-      category: "mountain",
-      location: { city: "Interlaken", country: "Switzerland" },
-      primaryImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500",
-      shortDescription: "Majestic mountain peaks and pristine alpine lakes.",
-      averageRating: 4.8
+      id: 3,
+      name: "Kerala Backwaters",
+      category: "nature",
+      location: { city: "Alleppey", country: "India" },
+      primaryImage: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+      shortDescription: "Cruise through the tranquil backwaters of God's Own Country.",
+      averageRating: 4.6
     }
   ];
 
-  // Use mock data if API fails or returns empty data
-  const displayData = placesData || {
-    places: mockPlaces,
-    total: mockPlaces.length,
-    totalPages: 1
+  // Use real data from API or fallback
+  const displayData = placesData || { 
+    places: fallbackPlaces, 
+    total: fallbackPlaces.length, 
+    totalPages: 1 
   };
 
-  if (error && !displayData.places) {
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -133,7 +99,7 @@ const Places = () => {
           </p>
           <button 
             onClick={() => window.location.reload()}
-            className="btn-primary"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Try Again
           </button>
@@ -195,6 +161,7 @@ const Places = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All Countries</option>
+                <option value="India">India</option>
                 <option value="USA">USA</option>
                 <option value="France">France</option>
                 <option value="Italy">Italy</option>
@@ -277,8 +244,8 @@ const Places = () => {
             {/* Results Count */}
             <div className="mb-6">
               <p className="text-gray-600">
-                Showing {displayData?.places?.length || 0} of {displayData?.total || 0} places
-                {error && <span className="text-red-500 ml-2">(Using sample data - please check your backend connection)</span>}
+                Showing all {displayData?.places?.length || 0} places
+                {!placesData && <span className="text-orange-500 ml-2">(Using sample data)</span>}
               </p>
             </div>
 
@@ -306,7 +273,7 @@ const Places = () => {
                           <div className="flex items-center space-x-1 bg-white bg-opacity-90 rounded-full px-2 py-1">
                             <Star className="w-4 h-4 text-yellow-400 fill-current" />
                             <span className="text-sm font-medium">
-                              {place.averageRating.toFixed(1)}
+                              {parseFloat(place.averageRating || 0).toFixed(1)}
                             </span>
                           </div>
                         </div>
@@ -318,7 +285,7 @@ const Places = () => {
                         <div className="flex items-center text-gray-600 mb-2">
                           <MapPin className="w-4 h-4 mr-1" />
                           <span className="text-sm">
-                            {place.location.city}, {place.location.country}
+                            {place.location?.city}, {place.location?.country}
                           </span>
                         </div>
                         <p className="text-gray-600 text-sm line-clamp-2">
@@ -362,7 +329,7 @@ const Places = () => {
                             <div className="flex items-center text-gray-600 mb-2">
                               <MapPin className="w-4 h-4 mr-1" />
                               <span className="text-sm">
-                                {place.location.city}, {place.location.country}
+                                {place.location?.city}, {place.location?.country}
                               </span>
                             </div>
                             <p className="text-gray-600 text-sm line-clamp-2">
@@ -373,7 +340,7 @@ const Places = () => {
                             <div className="flex items-center space-x-1 mb-2">
                               <Star className="w-4 h-4 text-yellow-400 fill-current" />
                               <span className="text-sm font-medium">
-                                {place.averageRating.toFixed(1)}
+                                {parseFloat(place.averageRating || 0).toFixed(1)}
                               </span>
                             </div>
                             <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-medium capitalize">
@@ -388,45 +355,7 @@ const Places = () => {
               </div>
             )}
 
-            {/* Pagination */}
-            {displayData?.totalPages > 1 && (
-              <div className="mt-8 flex justify-center">
-                <nav className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  
-                  {Array.from({ length: Math.min(5, displayData.totalPages) }, (_, i) => {
-                    const page = i + 1;
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`px-3 py-2 rounded-md text-sm font-medium ${
-                          currentPage === page
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
-                  
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(displayData.totalPages, prev + 1))}
-                    disabled={currentPage === displayData.totalPages}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </nav>
-              </div>
-            )}
+
           </>
         )}
       </div>

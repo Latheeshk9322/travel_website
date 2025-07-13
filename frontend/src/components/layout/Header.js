@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Search, Menu, X, User, LogOut, Settings, Heart, Star } from 'lucide-react';
+import { Search, Menu, X, User, LogOut, Settings, Heart, Star, Calendar } from 'lucide-react';
 import SearchModal from '../search/SearchModal';
 
 const Header = () => {
@@ -21,6 +21,7 @@ const Header = () => {
 
   const userMenu = [
     { name: 'Profile', href: '/user/profile', icon: User },
+    { name: 'My Bookings', href: '/user/bookings', icon: Calendar },
     { name: 'Favorites', href: '/user/favorites', icon: Heart },
     { name: 'My Reviews', href: '/user/reviews', icon: Star },
   ];

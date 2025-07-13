@@ -102,7 +102,7 @@ const Contact = () => {
                     },
                   })}
                   className={`input ${errors.email ? 'border-red-500' : ''}`}
-                  placeholder="your.email@example.com"
+                  placeholder="your.email@gmail.com"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -210,8 +210,8 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Phone</h3>
-                  <p className="text-gray-600">+1 (555) 123-4567</p>
-                  <p className="text-gray-600">+1 (555) 987-6543</p>
+                  <p className="text-gray-600">+91 9874637281</p>
+                  <p className="text-gray-600">+91 9874637282</p>
                 </div>
               </div>
 
@@ -222,9 +222,9 @@ const Contact = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Address</h3>
                   <p className="text-gray-600">
-                    123 Travel Street<br />
-                    Adventure City, AC 12345<br />
-                    United States
+                    2nd street<br />
+                    Nehru nagara, Puttur <br />
+                    Karnataka
                   </p>
                 </div>
               </div>

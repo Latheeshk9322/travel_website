@@ -52,9 +52,11 @@ module.exports = { sequelize };
     User.hasMany(Booking, { foreignKey: 'userId' });
 
     Place.hasMany(Review, { foreignKey: 'placeId' });
+    Place.hasMany(Package, { foreignKey: 'placeId' }); // One place can have many packages
 
     Package.hasMany(Review, { foreignKey: 'packageId' });
     Package.hasMany(Booking, { foreignKey: 'packageId' });
+    Package.belongsTo(Place, { foreignKey: 'placeId' }); // Package belongs to a place
     
     // Sync all models with the database
     await sequelize.sync({ alter: true });

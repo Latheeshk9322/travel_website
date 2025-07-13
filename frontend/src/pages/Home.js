@@ -4,6 +4,7 @@ import { useQuery } from 'react-query';
 import { placesAPI, packagesAPI } from '../services/api';
 import { ArrowRight, Star, MapPin, Calendar, Users } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { formatINRSimple } from '../utils/currencyFormatter';
 
 const Home = () => {
   const { data: featuredPlaces, isLoading: placesLoading } = useQuery(
@@ -87,7 +88,7 @@ const Home = () => {
                       <div className="flex items-center space-x-1 bg-white bg-opacity-90 rounded-full px-2 py-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="text-sm font-medium">
-                          {place.averageRating.toFixed(1)}
+                          {parseFloat(place.averageRating || 0).toFixed(1)}
                         </span>
                       </div>
                     </div>
@@ -168,7 +169,7 @@ const Home = () => {
                       <div className="flex items-center space-x-1 bg-white bg-opacity-90 rounded-full px-2 py-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="text-sm font-medium">
-                          {pkg.averageRating.toFixed(1)}
+                          {parseFloat(pkg.averageRating || 0).toFixed(1)}
                         </span>
                       </div>
                     </div>
@@ -192,7 +193,7 @@ const Home = () => {
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="text-2xl font-bold text-primary-600">
-                        ${pkg.currentPrice}
+                        {formatINRSimple(pkg.currentPrice)}
                         <span className="text-sm font-normal text-gray-500">
                           {pkg.pricing.perPerson ? ' /person' : ''}
                         </span>

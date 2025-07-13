@@ -1,9 +1,11 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const { Op } = require('sequelize');
 const User = require('../models/User');
 const Place = require('../models/Place');
 const Package = require('../models/Package');
 const Review = require('../models/Review');
+const Booking = require('../models/Booking');
 const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -16,71 +18,45 @@ router.use(protect, admin);
 // @access  Private/Admin
 router.get('/dashboard', async (req, res) => {
   try {
-    // Get recent users
-    const recentUsers = await User.findAll({
-      order: [['createdAt', 'DESC']],
-      limit: 5,
-      attributes: { exclude: ['password'] }
-    });
-
-    // Get recent places
-    const recentPlaces = await Place.findAll({
-      where: { isActive: true },
-      order: [['createdAt', 'DESC']],
-      limit: 5
-    });
-
-    // Get recent packages
-    const recentPackages = await Package.findAll({
-      where: { isActive: true },
-      order: [['createdAt', 'DESC']],
-      limit: 5
-    });
-
-    // Get recent reviews
-    const recentReviews = await Review.findAll({
-      order: [['createdAt', 'DESC']],
-      limit: 5
-    });
-
     // Get counts
     const userCount = await User.count();
     const placeCount = await Place.count({ where: { isActive: true } });
     const packageCount = await Package.count({ where: { isActive: true } });
     const reviewCount = await Review.count();
-
-    // Get top rated places
-    const topPlaces = await Place.findAll({
-      where: { isActive: true },
-      order: [['rating', 'DESC']],
-      limit: 5
+    const bookingCount = await Booking.count();
+    
+    // Calculate total revenue
+    const totalRevenue = await Booking.sum('finalAmount', {
+      where: { paymentStatus: 'paid' }
     });
 
-    // Get top rated packages
-    const topPackages = await Package.findAll({
-      where: { isActive: true },
+    // Get recent bookings
+    const recentBookings = await Booking.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Package,
+          attributes: ['id', 'name', 'primaryImage']
+        }
+      ],
       order: [['createdAt', 'DESC']],
-      limit: 5
+      limit: 10
     });
 
     res.json({
       success: true,
       stats: {
-        users: userCount,
-        places: placeCount,
-        packages: packageCount,
-        reviews: reviewCount
+        totalUsers: userCount,
+        totalPlaces: placeCount,
+        totalPackages: packageCount,
+        totalReviews: reviewCount,
+        totalBookings: bookingCount,
+        totalRevenue: totalRevenue || 0
       },
-      recent: {
-        users: recentUsers,
-        places: recentPlaces,
-        packages: recentPackages,
-        reviews: recentReviews
-      },
-      top: {
-        places: topPlaces,
-        packages: topPackages
-      }
+      recentBookings
     });
   } catch (error) {
     console.error('Dashboard error:', error);
@@ -196,33 +172,150 @@ router.get('/places', async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/packages
+// @desc    Create a new package
+// @access  Private/Admin
+router.post('/packages', [
+  body('name').notEmpty().withMessage('Package name is required'),
+  body('description').notEmpty().withMessage('Description is required'),
+  body('category').isIn(['adventure', 'cultural', 'beach', 'city', 'nature', 'luxury']).withMessage('Invalid category'),
+  body('duration').isInt({ min: 1 }).withMessage('Duration must be at least 1 day'),
+  body('currentPrice').isFloat({ min: 0 }).withMessage('Price must be positive'),
+  body('destinations').isArray().withMessage('Destinations must be an array')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const package = await Package.create(req.body);
+
+    res.status(201).json({
+      success: true,
+      package
+    });
+  } catch (error) {
+    console.error('Create package error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/admin/packages/:id
+// @desc    Update a package
+// @access  Private/Admin
+router.put('/packages/:id', [
+  body('name').notEmpty().withMessage('Package name is required'),
+  body('description').notEmpty().withMessage('Description is required'),
+  body('category').isIn(['adventure', 'cultural', 'beach', 'city', 'nature', 'luxury']).withMessage('Invalid category'),
+  body('duration').isInt({ min: 1 }).withMessage('Duration must be at least 1 day'),
+  body('currentPrice').isFloat({ min: 0 }).withMessage('Price must be positive')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const package = await Package.findByPk(req.params.id);
+    if (!package) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+
+    await package.update(req.body);
+
+    res.json({
+      success: true,
+      package
+    });
+  } catch (error) {
+    console.error('Update package error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/admin/packages/:id
+// @desc    Delete a package
+// @access  Private/Admin
+router.delete('/packages/:id', async (req, res) => {
+  try {
+    const package = await Package.findByPk(req.params.id);
+    if (!package) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+
+    await package.destroy();
+
+    res.json({
+      success: true,
+      message: 'Package deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete package error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/packages/:id/feature
+// @desc    Toggle package featured status
+// @access  Private/Admin
+router.post('/packages/:id/feature', async (req, res) => {
+  try {
+    const package = await Package.findByPk(req.params.id);
+    if (!package) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+
+    await package.update({ isFeatured: !package.isFeatured });
+
+    res.json({
+      success: true,
+      message: `Package ${package.isFeatured ? 'featured' : 'unfeatured'} successfully`,
+      package
+    });
+  } catch (error) {
+    console.error('Toggle package feature error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/admin/packages
-// @desc    Get all packages for admin
+// @desc    Get all packages for admin management
 // @access  Private/Admin
 router.get('/packages', async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const { search, category, page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
+    
+    let whereClause = {};
+    
+    if (search) {
+      whereClause.name = { [Op.iLike]: `%${search}%` };
+    }
+    
+    if (category) {
+      whereClause.category = category;
+    }
 
     const { count, rows: packages } = await Package.findAndCountAll({
+      where: whereClause,
       order: [['createdAt', 'DESC']],
-      limit,
-      offset
+      limit: parseInt(limit),
+      offset: parseInt(offset)
     });
 
     res.json({
       success: true,
       packages,
       pagination: {
-        currentPage: page,
+        currentPage: parseInt(page),
         totalPages: Math.ceil(count / limit),
         totalItems: count,
-        itemsPerPage: limit
+        itemsPerPage: parseInt(limit)
       }
     });
   } catch (error) {
-    console.error('Get packages error:', error);
+    console.error('Get admin packages error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

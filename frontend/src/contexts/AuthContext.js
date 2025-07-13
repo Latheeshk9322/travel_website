@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
           const response = await authAPI.getProfile();
           dispatch({
             type: 'LOGIN_SUCCESS',
-            payload: { user: response.data, token },
+            payload: { user: response, token },
           });
         } catch (error) {
           console.error('Auth check failed:', error);
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
     try {
       const response = await authAPI.login(email, password);
-      const { user, token } = response.data;
+      const { user, token } = response;
       
       localStorage.setItem('token', token);
       dispatch({
@@ -112,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'LOGIN_START' });
     try {
       const response = await authAPI.register(userData);
-      const { user, token } = response.data;
+      const { user, token } = response;
       
       localStorage.setItem('token', token);
       dispatch({
@@ -142,7 +142,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authAPI.updateProfile(profileData);
       dispatch({
         type: 'UPDATE_USER',
-        payload: response.data,
+        payload: response,
       });
       toast.success('Profile updated successfully');
       return { success: true };
