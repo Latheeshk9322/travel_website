@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { adminAPI } from '../../services/api';
-import { Plus, Edit, Trash2, Eye, Search, Filter, Package } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Search, Filter, Package, RefreshCw } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { formatINRSimple } from '../../utils/currencyFormatter';
 import toast from 'react-hot-toast';
@@ -12,8 +12,18 @@ const Packages = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPackage, setEditingPackage] = useState(null);
   const queryClient = useQueryClient();
+  const [polling, setPolling] = useState(true);
 
-  const { data: packagesData, isLoading, error } = useQuery(
+  // Polling for real-time updates
+  useEffect(() => {
+    if (!polling) return;
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries(['admin-packages']);
+    }, 10000); // 10 seconds
+    return () => clearInterval(interval);
+  }, [polling, queryClient]);
+
+  const { data: packagesData, isLoading, error, refetch } = useQuery(
     ['admin-packages', searchTerm, categoryFilter],
     () => adminAPI.getPackages({ search: searchTerm, category: categoryFilter }),
     {
@@ -69,13 +79,30 @@ const Packages = () => {
           <h1 className="text-3xl font-bold text-gray-900">Manage Packages</h1>
           <p className="text-gray-600 mt-2">Create, edit, and manage travel packages</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="btn-primary flex items-center space-x-2"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Package</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="btn-primary flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Package</span>
+          </button>
+          <button
+            onClick={() => refetch()}
+            className="btn-outline flex items-center space-x-2"
+            title="Refresh Prices"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={() => setPolling((p) => !p)}
+            className={`btn-outline flex items-center space-x-2 ${polling ? 'text-green-600' : 'text-gray-400'}`}
+            title={polling ? 'Stop Auto-Refresh' : 'Start Auto-Refresh'}
+          >
+            <span>{polling ? 'Auto-Refresh On' : 'Auto-Refresh Off'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

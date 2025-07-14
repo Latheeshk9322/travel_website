@@ -2,6 +2,7 @@ const { sequelize } = require('../server');
 const User = require('../models/User');
 const Place = require('../models/Place');
 const Package = require('../models/Package');
+const Review = require('../models/Review');
 
 const seedData = async () => {
   try {
@@ -812,6 +813,89 @@ const seedData = async () => {
     ]);
 
     console.log('Packages created:', packages.length);
+
+    // Create sample reviews for places and packages
+    const reviews = await Review.bulkCreate([
+      // Reviews for Mysore Palace
+      {
+        userId: regularUser.id,
+        placeId: places.find(p => p.name === 'Mysore Palace').id,
+        rating: 5,
+        title: 'Absolutely Magnificent!',
+        comment: 'The Mysore Palace is truly a sight to behold. The architecture is stunning and the history is fascinating. The evening lighting ceremony is a must-see. Highly recommend visiting during the Dasara festival for the full experience.',
+        helpful: 12,
+        status: 'approved',
+        isVerified: true
+      },
+      {
+        userId: adminUser.id,
+        placeId: places.find(p => p.name === 'Mysore Palace').id,
+        rating: 4,
+        title: 'Beautiful Heritage Site',
+        comment: 'Great place to learn about Karnataka\'s royal history. The palace is well-maintained and the guided tour was informative. The gardens are also worth exploring.',
+        helpful: 8,
+        status: 'approved',
+        isVerified: true
+      },
+
+      // Reviews for Taj Mahal
+      {
+        userId: regularUser.id,
+        placeId: places.find(p => p.name === 'Taj Mahal').id,
+        rating: 5,
+        title: 'A Wonder of the World',
+        comment: 'Words cannot describe the beauty of the Taj Mahal. The marble work is exquisite and the symmetry is perfect. Visit early morning for the best photos and fewer crowds.',
+        helpful: 25,
+        status: 'approved',
+        isVerified: true
+      },
+
+      // Reviews for Kerala Backwaters
+      {
+        userId: adminUser.id,
+        placeId: places.find(p => p.name === 'Kerala Backwaters').id,
+        rating: 5,
+        title: 'Peaceful Paradise',
+        comment: 'The backwaters are incredibly peaceful and beautiful. The houseboat experience was luxurious and the food was amazing. Perfect for a romantic getaway.',
+        helpful: 15,
+        status: 'approved',
+        isVerified: true
+      },
+
+      // Reviews for Packages
+      {
+        userId: regularUser.id,
+        packageId: packages.find(p => p.name === 'Mysore Heritage Tour').id,
+        rating: 4,
+        title: 'Great Heritage Experience',
+        comment: 'The tour was well-organized and covered all the important sites. The guide was knowledgeable and the accommodation was comfortable. Good value for money.',
+        helpful: 6,
+        status: 'approved',
+        isVerified: true
+      },
+      {
+        userId: adminUser.id,
+        packageId: packages.find(p => p.name === 'Kerala Backwaters Cruise').id,
+        rating: 5,
+        title: 'Unforgettable Experience',
+        comment: 'The houseboat cruise was absolutely amazing. The crew was friendly, food was delicious, and the scenery was breathtaking. Highly recommend this package.',
+        helpful: 10,
+        status: 'approved',
+        isVerified: true
+      },
+      {
+        userId: regularUser.id,
+        packageId: packages.find(p => p.name === 'Golden Triangle Tour').id,
+        rating: 4,
+        title: 'Perfect Introduction to India',
+        comment: 'This tour covers the essential highlights of North India. The Taj Mahal was the highlight, but Jaipur and Delhi were also fascinating. Good mix of history and culture.',
+        helpful: 18,
+        status: 'approved',
+        isVerified: true
+      }
+    ]);
+
+    console.log('Reviews created:', reviews.length);
     console.log('Sample data seeded successfully!');
 
   } catch (error) {
