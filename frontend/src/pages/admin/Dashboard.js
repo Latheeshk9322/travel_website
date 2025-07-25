@@ -83,16 +83,6 @@ const Dashboard = () => {
         <p className="text-gray-600 mt-2">Welcome back! Here's what's happening with your travel platform.</p>
       </div>
 
-      {/* Debug Info */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-          <h3 className="font-semibold mb-2">Debug Info:</h3>
-          <pre className="text-sm text-gray-600">
-            {JSON.stringify({ stats, recentBookingsCount: recentBookings.length }, null, 2)}
-          </pre>
-        </div>
-      )}
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat, index) => (

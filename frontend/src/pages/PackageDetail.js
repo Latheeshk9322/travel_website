@@ -233,6 +233,26 @@ const PackageDetail = () => {
     }
   };
 
+  // Add a mapping from package names to local image files
+  const packageImageMap = {
+    'ajanta_ellora_heritage': '/images/packages/ajanta_ellora_heritage.jpg',
+    'coorg_coffee_trail': '/images/packages/coorg_coffee_trail.jpg',
+    'goa_beach_paradise': '/images/packages/goa_beach_paradise.jpg',
+    'gokarna_beach_retreat': '/images/packages/gokarna_beach_retreat.jpg',
+    'golden_triangle_tour': '/images/packages/golden_triangle_tour.jpg',
+    'hampi_heritage_walk': '/images/packages/hampi_heritage_walk.jpg',
+    'jaisalmer_desert_safari': '/images/packages/jaisalmer_desert_safari.avif',
+    'kerala_backwaters_cruise': '/images/packages/kerala_backwaters_cruise.jpg',
+    'luxury_rajasthan_tour': '/images/packages/luxury_rajasthan_tour.jpg',
+    'madurai_temple_tour': '/images/packages/madurai_temple_tour.avif',
+    'mumbai_city_explorer': '/images/packages/mumbai_city_explorer.jpg',
+    'kudla': '/images/packages/kudla.jpg',
+    'mysore_heritage_tour': '/images/packages/mysore_heritage_tour.jpg',
+    'varanasi_spiritual_journey': '/images/packages/varanasi_spiritual_journey.jpg',
+    'munnar_tea_experience': '/images/packages/munnar_tea_experience.jpg',
+    'ooty_tea_gardens': '/images/packages/ooty_tea_gardens.avif',
+  };
+
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
       {/* Package Header */}
@@ -253,7 +273,7 @@ const PackageDetail = () => {
           </div>
         </div>
         <img 
-          src={pkg.primaryImage} 
+          src={packageImageMap[pkg.name.toLowerCase().replace(/\s/g, '_')] || ''}
           alt={pkg.name} 
           className="w-full h-96 object-cover rounded-lg mb-6" 
         />

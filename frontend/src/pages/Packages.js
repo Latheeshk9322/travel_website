@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { packagesAPI, placesAPI } from '../services/api';
-import { Star, Calendar, Users, Search, Grid, List, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, Calendar, Users, Search, Grid, List, ChevronDown, ChevronUp } from 'lucide-react';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { formatINRSimple } from '../utils/currencyFormatter';
-import { getUserLocation, getLocationDisplayName } from '../utils/locationDetector';
+import { getUserLocation } from '../utils/locationDetector';
+// Add more imports as needed
 
 const Packages = () => {
   const location = useLocation();
@@ -93,6 +94,26 @@ const Packages = () => {
   };
 
   const hasMorePages = displayData && currentPage < displayData.totalPages;
+
+  // Add a mapping from package names to local image files
+  const packageImageMap = {
+    ajanta_ellora_heritage: '/images/packages/ajanta_ellora_heritage.jpg',
+    coorg_coffee_trail: '/images/packages/coorg_coffee_trail.jpg',
+    goa_beach_paradise: '/images/packages/goa_beach_paradise.jpg',
+    gokarna_beach_retreat: '/images/packages/gokarna_beach_retreat.jpg',
+    golden_triangle_tour: '/images/packages/golden_triangle_tour.jpg',
+    hampi_heritage_walk: '/images/packages/hampi_heritage_walk.jpg',
+    jaisalmer_desert_safari: '/images/packages/jaisalmer_desert_safari.avif',
+    kerala_backwaters_cruise: '/images/packages/kerala_backwaters_cruise.jpg',
+    luxury_rajasthan_tour: '/images/packages/luxury_rajasthan_tour.jpg',
+    madurai_temple_tour: '/images/packages/madurai_temple_tour.avif',
+    mumbai_city_explorer: '/images/packages/mumbai_city_explorer.jpg',
+    kudla: '/images/packages/kudla.jpg',
+    mysore_heritage_tour: '/images/packages/mysore_heritage_tour.jpg',
+    varanasi_spiritual_journey: '/images/packages/varanasi_spiritual_journey.jpg',
+    munnar_tea_experience: '/images/packages/munnar_tea_experience.jpg',
+    ooty_tea_gardens: '/images/packages/ooty_tea_gardens.avif',
+  };
 
   if (error) {
     return (
@@ -301,16 +322,11 @@ const Packages = () => {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img
-                      src={pkg.primaryImage || '/placeholder-package.jpg'}
+                      src={packageImageMap[pkg.name.toLowerCase().replace(/\s/g, '_')] || ''}
                       alt={pkg.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-4 left-4">
-                      <span className="badge-primary capitalize">
-                        {pkg.category}
-                      </span>
-                    </div>
-                    <div className="absolute top-4 right-4">
                       <div className="flex items-center space-x-1 bg-white bg-opacity-90 rounded-full px-2 py-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="text-sm font-medium">
@@ -362,7 +378,7 @@ const Packages = () => {
                   <div className="flex">
                     <div className="w-48 h-32 flex-shrink-0">
                       <img
-                        src={pkg.primaryImage || '/placeholder-package.jpg'}
+                        src={packageImageMap[pkg.name.toLowerCase().replace(/\s/g, '_')] || ''}
                         alt={pkg.name}
                         className="w-full h-full object-cover"
                       />
@@ -398,9 +414,6 @@ const Packages = () => {
                           <div className="text-sm text-gray-500">
                             {pkg.pricing?.perPerson ? 'per person' : 'total'}
                           </div>
-                          <span className="inline-block mt-2 bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs font-medium capitalize">
-                            {pkg.category}
-                          </span>
                         </div>
                       </div>
                     </div>
@@ -434,11 +447,11 @@ const Packages = () => {
           )}
 
           {/* No More Results */}
-          {!hasMorePages && displayData?.packages?.length > 0 && (
+          {/* {!hasMorePages && displayData?.packages?.length > 0 && (
             <div className="text-center mt-8 py-4">
               <p className="text-gray-500">You've seen all available packages!</p>
             </div>
-          )}
+          )} */}
         </>
       )}
     </div>

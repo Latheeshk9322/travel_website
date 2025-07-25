@@ -8,6 +8,21 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { formatINRSimple } from '../utils/currencyFormatter';
 import toast from 'react-hot-toast';
 
+const placeImages = {
+  'Hampi': '/images/hampi.jpg',
+  'Jaipur': '/images/jaipur.jpg',
+  'Kerala Backwaters': '/images/kerala.webp',
+  'Goa Beaches': '/images/goa_bech.jpg',
+  'Gokarna Beach': '/images/gokarna_beach.webp',
+  'Lonavala': '/images/Lonavala.webp',
+  'Mahabalipuram': '/images/mahabalipuram.jpg',
+  'Kovalam': '/images/kovalam.jpg',
+  'Jaisalmer Fort': '/images/jaislamer_fort.jpg',
+  'Mumbai Gateway of India': '/images/gatway.jpg',
+  'Coffee Estate': '/images/coffee_estate.jpg',
+  'Ajanta Caves': '/images/Ajanta_caves.jpg',
+};
+
 const PlaceDetail = () => {
   const { id } = useParams();
   const { user, isAuthenticated } = useAuth();
@@ -147,7 +162,7 @@ const PlaceDetail = () => {
           </div>
         </div>
         <img 
-          src={place.primaryImage} 
+          src={placeImages[place.name] || place.primaryImage} 
           alt={place.name} 
           className="w-full h-96 object-cover rounded-lg mb-6" 
         />

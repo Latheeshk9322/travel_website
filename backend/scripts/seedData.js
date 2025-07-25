@@ -21,16 +21,22 @@ const seedData = async () => {
 
     // Create regular user
     const regularUser = await User.create({
-      name: 'John Doe',
+      name: 'Ranjan K',
       email: 'john@example.com',
       password: 'user123',
       role: 'user',
       phone: '+91-9876543211'
+    }, {
+      name: 'Ranjan',
+      email: 'ranjan0@example.com',
+      password: 'user123',
+      role: 'user',
+      phone: '+91-9272891827'
     });
 
     console.log('Users created:', { admin: adminUser.email, user: regularUser.email });
 
-    // Sample places in India - Expanded list
+    // Sample places in India - Expanded list with unique images
     const places = await Place.bulkCreate([
       // Karnataka Places
       {
@@ -44,7 +50,7 @@ const seedData = async () => {
         rating: 4.7,
         averageRating: 4.7,
         totalReviews: 2100,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -59,7 +65,7 @@ const seedData = async () => {
         rating: 4.6,
         averageRating: 4.6,
         totalReviews: 1800,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -74,7 +80,7 @@ const seedData = async () => {
         rating: 4.5,
         averageRating: 4.5,
         totalReviews: 1500,
-        primaryImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -89,7 +95,7 @@ const seedData = async () => {
         rating: 4.4,
         averageRating: 4.4,
         totalReviews: 1200,
-        primaryImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -106,7 +112,7 @@ const seedData = async () => {
         rating: 4.3,
         averageRating: 4.3,
         totalReviews: 3000,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -121,7 +127,7 @@ const seedData = async () => {
         rating: 4.6,
         averageRating: 4.6,
         totalReviews: 1400,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -136,7 +142,7 @@ const seedData = async () => {
         rating: 4.4,
         averageRating: 4.4,
         totalReviews: 1600,
-        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -153,7 +159,7 @@ const seedData = async () => {
         rating: 4.7,
         averageRating: 4.7,
         totalReviews: 2200,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -168,7 +174,7 @@ const seedData = async () => {
         rating: 4.5,
         averageRating: 4.5,
         totalReviews: 1800,
-        primaryImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -183,7 +189,7 @@ const seedData = async () => {
         rating: 4.4,
         averageRating: 4.4,
         totalReviews: 1200,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -200,7 +206,7 @@ const seedData = async () => {
         rating: 4.6,
         averageRating: 4.6,
         totalReviews: 1200,
-        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -215,7 +221,7 @@ const seedData = async () => {
         rating: 4.5,
         averageRating: 4.5,
         totalReviews: 1400,
-        primaryImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -230,7 +236,7 @@ const seedData = async () => {
         rating: 4.3,
         averageRating: 4.3,
         totalReviews: 1000,
-        primaryImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -247,7 +253,7 @@ const seedData = async () => {
         rating: 4.4,
         averageRating: 4.4,
         totalReviews: 1600,
-        primaryImage: 'https://images.unsplash.com/photo-1553603229-0f1a5d7c0b8a?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -262,7 +268,7 @@ const seedData = async () => {
         rating: 4.6,
         averageRating: 4.6,
         totalReviews: 1100,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -277,27 +283,12 @@ const seedData = async () => {
         rating: 4.8,
         averageRating: 4.8,
         totalReviews: 800,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
 
       // Uttar Pradesh Places
-      {
-        name: 'Taj Mahal',
-        description: 'The iconic white marble mausoleum in Agra, a UNESCO World Heritage site and one of the Seven Wonders of the World.',
-        shortDescription: 'Experience the eternal symbol of love in all its grandeur.',
-        location: 'Agra, Uttar Pradesh',
-        country: 'India',
-        city: 'Agra',
-        category: 'cultural',
-        rating: 4.8,
-        averageRating: 4.8,
-        totalReviews: 2500,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
-        featured: true,
-        isActive: true
-      },
       {
         name: 'Varanasi Ghats',
         description: 'Spiritual capital of India with ancient ghats along the sacred Ganges River.',
@@ -309,7 +300,7 @@ const seedData = async () => {
         rating: 4.3,
         averageRating: 4.3,
         totalReviews: 1400,
-        primaryImage: 'https://images.unsplash.com/photo-1553603229-0f1a5d7c0b8a?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -326,7 +317,7 @@ const seedData = async () => {
         rating: 4.5,
         averageRating: 4.5,
         totalReviews: 1800,
-        primaryImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       },
@@ -343,7 +334,7 @@ const seedData = async () => {
         rating: 4.7,
         averageRating: 4.7,
         totalReviews: 900,
-        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         featured: true,
         isActive: true
       }
@@ -351,7 +342,7 @@ const seedData = async () => {
 
     console.log('Places created:', places.length);
 
-    // Create packages with location-based pricing and place relationships
+    // Create packages with location-based pricing and place relationships with unique images
     const packages = await Package.bulkCreate([
       // Karnataka Packages
       {
@@ -366,7 +357,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.6,
         averageRating: 4.6,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Meals', 'Local Guide', 'Transport'],
@@ -395,7 +386,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.5,
         averageRating: 4.5,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Meals', 'Expert Guide'],
@@ -423,7 +414,7 @@ const seedData = async () => {
         category: 'nature',
         rating: 4.7,
         averageRating: 4.7,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Estate Stay', 'Coffee Tasting', 'Local Guide'],
@@ -451,7 +442,7 @@ const seedData = async () => {
         category: 'beach',
         rating: 4.4,
         averageRating: 4.4,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Beach Resort', 'Meals', 'Temple Visits'],
@@ -480,7 +471,7 @@ const seedData = async () => {
         category: 'city',
         rating: 4.3,
         averageRating: 4.3,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Hotel', 'Local Transport', 'City Guide'],
@@ -507,7 +498,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.6,
         averageRating: 4.6,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Meals', 'Expert Guide'],
@@ -536,7 +527,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.7,
         averageRating: 4.7,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Temple Guide', 'Meals'],
@@ -564,7 +555,7 @@ const seedData = async () => {
         category: 'nature',
         rating: 4.5,
         averageRating: 4.5,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Estate Stay', 'Tea Tasting', 'Local Guide'],
@@ -594,7 +585,7 @@ const seedData = async () => {
         category: 'nature',
         rating: 4.7,
         averageRating: 4.7,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Houseboat', 'Meals', 'Local Guide'],
@@ -622,7 +613,7 @@ const seedData = async () => {
         category: 'nature',
         rating: 4.5,
         averageRating: 4.5,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Plantation Stay', 'Tea Tasting', 'Local Guide'],
@@ -652,7 +643,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.9,
         averageRating: 4.9,
-        primaryImage: 'https://images.unsplash.com/photo-1553603229-0f1a5d7c0b8a?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Luxury Accommodation', 'All Meals', 'Private Transport', 'Expert Guide'],
@@ -680,7 +671,7 @@ const seedData = async () => {
         category: 'adventure',
         rating: 4.6,
         averageRating: 4.6,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Desert Camp', 'Camel Safari', 'Meals'],
@@ -708,7 +699,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.6,
         averageRating: 4.6,
-        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Meals', 'Transport', 'Guide'],
@@ -720,7 +711,7 @@ const seedData = async () => {
           Rajasthan: 1.05,
           default: 1.1
         },
-        placeId: places.find(p => p.name === 'Taj Mahal').id,
+        placeId: places.find(p => p.name === 'Varanasi Ghats').id,
         isActive: true,
         featured: true
       },
@@ -736,7 +727,7 @@ const seedData = async () => {
         category: 'cultural',
         rating: 4.4,
         averageRating: 4.4,
-        primaryImage: 'https://images.unsplash.com/photo-1553603229-0f1a5d7c0b8a?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Ganga Aarti', 'Local Guide'],
@@ -764,7 +755,7 @@ const seedData = async () => {
         category: 'beach',
         rating: 4.5,
         averageRating: 4.5,
-        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Meals', 'Airport Transfer'],
@@ -794,7 +785,7 @@ const seedData = async () => {
         category: 'adventure',
         rating: 4.8,
         averageRating: 4.8,
-        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        primaryImage: '',
         pricing: {
           perPerson: true,
           includes: ['Accommodation', 'Adventure Activities', 'Yoga Classes'],
@@ -838,10 +829,10 @@ const seedData = async () => {
         isVerified: true
       },
 
-      // Reviews for Taj Mahal
+      // Reviews for Varanasi Ghats
       {
         userId: regularUser.id,
-        placeId: places.find(p => p.name === 'Taj Mahal').id,
+        placeId: places.find(p => p.name === 'Varanasi Ghats').id,
         rating: 5,
         title: 'A Wonder of the World',
         comment: 'Words cannot describe the beauty of the Taj Mahal. The marble work is exquisite and the symmetry is perfect. Visit early morning for the best photos and fewer crowds.',

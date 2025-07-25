@@ -66,14 +66,14 @@ const Places = () => {
 
   const hasMorePages = placesData && currentPage < placesData.totalPages;
 
-  // Fallback data if API fails
+  // Enhanced fallback data with proper images for each place
   const fallbackPlaces = [
     {
       id: 1,
       name: "Taj Mahal",
       category: "historical",
       location: { city: "Agra", country: "India" },
-      primaryImage: "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800",
+      primaryImage: '/images/taj-mahal.jpg',
       shortDescription: "Experience the eternal symbol of love in all its grandeur.",
       averageRating: 4.8
     },
@@ -82,7 +82,7 @@ const Places = () => {
       name: "Goa Beaches",
       category: "beach",
       location: { city: "Panaji", country: "India" },
-      primaryImage: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+      primaryImage: '/images/goa-beach.jpg',
       shortDescription: "Sun, sand, and sea in India's party capital.",
       averageRating: 4.5
     },
@@ -91,18 +91,164 @@ const Places = () => {
       name: "Kerala Backwaters",
       category: "nature",
       location: { city: "Alleppey", country: "India" },
-      primaryImage: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+      primaryImage: '/images/kerala-backwaters.jpg',
       shortDescription: "Cruise through the tranquil backwaters of God's Own Country.",
       averageRating: 4.6
+    },
+    {
+      id: 4,
+      name: "Udaipur Lake Palace",
+      category: "historical",
+      location: { city: "Udaipur", country: "India" },
+      primaryImage: '/images/udaipur-palace.jpg',
+      shortDescription: "Floating marble palace on the serene Lake Pichola.",
+      averageRating: 4.7
+    },
+    {
+      id: 5,
+      name: "Rishikesh Adventure",
+      category: "adventure",
+      location: { city: "Rishikesh", country: "India" },
+      primaryImage: '/images/rishikesh-adventure.jpg',
+      shortDescription: "White water rafting and spiritual experiences in the Himalayas.",
+      averageRating: 4.4
+    },
+    {
+      id: 6,
+      name: "Meenakshi Temple",
+      category: "cultural",
+      location: { city: "Madurai", country: "India" },
+      primaryImage: '/images/meenakshi-temple.jpg',
+      shortDescription: "Marvel at the stunning Dravidian architecture and vibrant sculptures.",
+      averageRating: 4.6
+    },
+    {
+      id: 7,
+      name: "Mysore Palace",
+      category: "historical",
+      location: { city: "Mysore", country: "India" },
+      primaryImage: '/images/mysore-palace.jpg',
+      shortDescription: "Experience the grandeur of Karnataka's royal heritage.",
+      averageRating: 4.5
+    },
+    {
+      id: 8,
+      name: "Ajanta Caves",
+      category: "historical",
+      location: { city: "Aurangabad", country: "India" },
+      primaryImage: '/images/ajanta-caves.jpg',
+      shortDescription: "Discover ancient Buddhist rock-cut cave monuments and paintings.",
+      averageRating: 4.3
     }
   ];
 
+  // Add a mapping from place names to local image files
+  const placeImageMap = {
+    'Ajanta Caves': '/images/Ajanta_caves.jpg',
+    'Kerala Backwaters': '/images/kerala.webp', // or '/images/Kerala Backwaters Cruise.jpg' if you prefer
+    'Jaisalmer Fort': '/images/jaislamer_fort.jpg',
+    'Coorg Coffee Estates': '/images/coorg_estate.jpg',
+    'Gateway of India': '/images/gatway.jpg',
+    'Mysore Palace': '/images/mysore.jpg',
+    'Goa Beaches': '/images/goa_bech.jpg',
+    'Gokarna Beaches': '/images/gokarna_beach.webp',
+    'Hampi Ruins': '/images/hampi.jpg',
+    'Jaipur Palace': '/images/jaipur.jpg',
+    'Kovalam Beach': '/images/kovalam.jpg',
+    'Lonavala Hills': '/images/Lonavala.webp',
+    'Mahabalipuram Shore Temple': '/images/mahabalipuram.jpg',
+    'Taj Mahal': '/images/taj_mahal.jpg',
+    'Meenakshi Temple': '/images/meenakshi_temple.jpg',
+    'Udaipur Lake Palace': '/images/udaipur_lake_palace.jpg'
+  };
+
+  // Function to get appropriate image based on place data
+  const getPlaceImage = (place) => {
+    // If API provides a proper image, use it
+    if (place.primaryImage && place.primaryImage !== '/placeholder-place.jpg') {
+      return place.primaryImage;
+    }
+
+    // Otherwise, generate image based on place characteristics
+    const imageMap = {
+      // Historical places
+      'taj mahal': '/images/taj_mahal.jpg',
+      'udaipur': '/images/Udaipur_Lake_Palace.jpg',
+      'mysore': '/images/mysore-palace.jpg',
+      'ajanta': '/images/Ajanta_caves.jpg',
+      'meenakshi': '/images/Meenakshi_Temple.jpg',
+      
+      // Beach destinations
+      'goa': '/images/goa_bech.jpg',
+      'kovalam': '/images/kovalam.jpg',
+      'varkala': '/images/varkala-beach.jpg',
+      
+      // Nature and backwaters
+      'kerala': '/images/kerala.jpg',
+      'munnar': '/images/munnar-hills.jpg',
+      'coorg': '/images/coffee_estate.jpg',
+      
+      // Adventure destinations
+      'rishikesh': '/images/rishikesh-adventure.jpg',
+      'manali': '/images/manali-adventure.jpg',
+      'leh': '/images/leh-ladakh.jpg',
+      
+      // Mountain destinations
+      'shimla': '/images/shimla-hills.jpg',
+      'darjeeling': '/images/darjeeling-tea.jpg',
+      'ooty': '/images/ooty-hills.jpg',
+      
+      // City destinations
+      'mumbai': '/images/mumbai_gateway_of_india.jpg',
+      'delhi': '/images/delhi-city.jpg',
+      'bangalore': '/images/bangalore-city.jpg',
+      'jaipur': '/images/jaipur-city.jpg'
+    };
+
+    // Try to match by place name
+    const placeName = place.name.toLowerCase();
+    for (const [key, imagePath] of Object.entries(imageMap)) {
+      if (placeName.includes(key)) {
+        return imagePath;
+      }
+    }
+
+    // Fallback based on category
+    const categoryImages = {
+      'historical': '/images/historical-default.jpg',
+      'beach': '/images/beach-default.jpg',
+      'nature': '/images/nature-default.jpg',
+      'adventure': '/images/adventure-default.jpg',
+      'cultural': '/images/cultural-default.jpg',
+      'mountain': '/images/mountain-default.jpg',
+      'city': '/images/city-default.jpg'
+    };
+
+    return categoryImages[place.category] || '/images/placeholder-place.jpg';
+  };
+
+  // Process places data to ensure proper images
+  const processPlacesData = (data) => {
+    if (!data || !data.places) return data;
+    
+    return {
+      ...data,
+      places: data.places.map(place => ({
+        ...place,
+        primaryImage: getPlaceImage(place)
+      }))
+    };
+  };
+
   // Use real data from API or fallback
-  const displayData = placesData || { 
+  const rawDisplayData = placesData || { 
     places: fallbackPlaces, 
     total: fallbackPlaces.length, 
     totalPages: 1 
   };
+
+  // Process the data to ensure proper images
+  const displayData = processPlacesData(rawDisplayData);
 
   if (error) {
     return (
@@ -161,22 +307,7 @@ const Places = () => {
               <option value="historical">Historical</option>
               <option value="adventure">Adventure</option>
               <option value="cultural">Cultural</option>
-              <option value="nature">Nature</option>
-            </select>
-          </div>
-
-          {/* Country */}
-          <div>
-            <select
-              value={filters.country}
-              onChange={(e) => handleFilterChange('country', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Countries</option>
-              <option value="India">India</option>
-              <option value="Thailand">Thailand</option>
-              <option value="Japan">Japan</option>
-              <option value="Switzerland">Switzerland</option>
+              {/* <option value="nature">Nature</option> */}
             </select>
           </div>
 
@@ -293,7 +424,7 @@ const Places = () => {
                   >
                     <div className="relative overflow-hidden">
                       <img
-                        src={place.primaryImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500'}
+                        src={placeImageMap[place.name] || ''}
                         alt={place.name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -348,7 +479,7 @@ const Places = () => {
                   <div className="flex">
                     <div className="w-48 h-32 flex-shrink-0">
                       <img
-                        src={place.primaryImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500'}
+                        src={placeImageMap[place.name] || ''}
                         alt={place.name}
                         className="w-full h-full object-cover"
                       />
@@ -390,31 +521,14 @@ const Places = () => {
 
           {/* Load More Button */}
           {hasMorePages && (
-            <div className="text-center mt-8">
+            <div className="mt-8 text-center">
               <button
                 onClick={loadMore}
+                className="btn-primary"
                 disabled={isLoading}
-                className="btn-primary inline-flex items-center space-x-2"
               >
-                {isLoading ? (
-                  <>
-                    <LoadingSpinner size="sm" />
-                    <span>Loading...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>See More Places</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </>
-                )}
+                {isLoading ? 'Loading...' : 'Load More'}
               </button>
-            </div>
-          )}
-
-          {/* No More Results */}
-          {!hasMorePages && displayData?.places?.length > 0 && (
-            <div className="text-center mt-8 py-4">
-              <p className="text-gray-500">You've seen all available places!</p>
             </div>
           )}
         </>

@@ -17,6 +17,40 @@ const Home = () => {
     () => packagesAPI.getFeatured()
   );
 
+  // Add a mapping from place names to local image files
+  const placeImageMap = {
+    'Taj Mahal': '/images/taj-mahal.jpg',
+    'Goa Beaches': '/images/goa-beach.jpg',
+    'Kerala Backwaters': '/images/kerala-backwaters.jpg',
+    'Udaipur Lake Palace': '/images/udaipur-palace.jpg',
+    'Rishikesh Adventure': '/images/rishikesh-adventure.jpg',
+    'Meenakshi Temple': '/images/meenakshi-temple.jpg',
+    'Mysore Palace': '/images/mysore-palace.jpg',
+    'Ajanta Caves': '/images/ajanta-caves.jpg',
+    // Add more mappings as needed
+  };
+
+  // Add a mapping from package names to local image files
+  const packageImageMap = {
+    'Mysore Heritage Tour': '/images/mysore-heritage.jpg',
+    'Hampi Heritage Walk': '/images/hampi-heritage.jpg',
+    'Coorg Coffee Trail': '/images/coorg-coffee.jpg',
+    'Gokarna Beach Retreat': '/images/gokarna-beach.jpg',
+    'Mumbai City Explorer': '/images/mumbai-city.jpg',
+    'Ajanta Ellora Heritage': '/images/ajanta-ellora.jpg',
+    'Madurai Temple Tour': '/images/madurai-temple.jpg',
+    'Ooty Tea Gardens': '/images/ooty-tea.jpg',
+    'Kerala Backwaters Cruise': '/images/kerala-backwaters.jpg',
+    'Munnar Tea Experience': '/images/munnar-tea.jpg',
+    'Luxury Rajasthan Tour': '/images/rajasthan-luxury.jpg',
+    'Jaisalmer Desert Safari': '/images/jaisalmer-desert.jpg',
+    'Golden Triangle Tour': '/images/golden-triangle.jpg',
+    'Varanasi Spiritual Journey': '/images/varanasi-journey.jpg',
+    'Goa Beach Paradise': '/images/goa-beach.jpg',
+    'Rishikesh Adventure Package': '/images/rishikesh-adventure.jpg',
+    // Add more mappings as needed
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -75,7 +109,7 @@ const Home = () => {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img
-                      src={place.primaryImage || '/placeholder-place.jpg'}
+                      src={placeImageMap[place.name] || ''}
                       alt={place.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -156,7 +190,7 @@ const Home = () => {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img
-                      src={pkg.primaryImage || '/placeholder-package.jpg'}
+                      src={packageImageMap[pkg.name] || ''}
                       alt={pkg.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />

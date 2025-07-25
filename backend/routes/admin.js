@@ -7,6 +7,27 @@ const Package = require('../models/Package');
 const Review = require('../models/Review');
 const Booking = require('../models/Booking');
 const { protect, admin } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const cors = require('cors');
+
+// Ensure uploads/packages directory exists
+const packagesDir = path.join(__dirname, '../uploads/packages');
+if (!fs.existsSync(packagesDir)) {
+  fs.mkdirSync(packagesDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, packagesDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
 
 const router = express.Router();
 
@@ -172,6 +193,35 @@ router.get('/places', async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/places
+// @desc    Create a new place
+// @access  Private/Admin
+router.post('/places', [
+  body('name').notEmpty().withMessage('Place name is required'),
+  body('description').notEmpty().withMessage('Description is required'),
+  body('category').isIn(['beach', 'mountain', 'city', 'historical', 'adventure', 'cultural', 'nature']).withMessage('Invalid category'),
+  body('location').notEmpty().withMessage('Location is required'),
+  body('country').notEmpty().withMessage('Country is required'),
+  body('city').notEmpty().withMessage('City is required'),
+  body('shortDescription').notEmpty().withMessage('Short description is required'),
+  body('isActive').isBoolean().withMessage('isActive must be a boolean'),
+  body('featured').isBoolean().withMessage('featured must be a boolean'),
+  body('primaryImage').optional().isString(),
+  body('rating').optional().isFloat({ min: 0, max: 5 }),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const place = await Place.create(req.body);
+    res.status(201).json({ success: true, place });
+  } catch (error) {
+    console.error('Create place error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   POST /api/admin/packages
 // @desc    Create a new package
 // @access  Private/Admin
@@ -317,6 +367,45 @@ router.get('/packages', async (req, res) => {
   } catch (error) {
     console.error('Get admin packages error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/admin/packages/upload-image
+// @desc    Upload package image
+// @access  Private/Admin
+router.options('/packages/upload-image', cors());
+
+// Test endpoint for connectivity (no auth required)
+router.get('/packages/upload-image/test', (req, res) => {
+  res.json({ success: true, message: 'Upload endpoint is reachable.' });
+});
+
+router.post('/packages/upload-image', cors(), (req, res, next) => {
+  // Ensure directory exists before handling upload
+  const packagesDir = path.join(__dirname, '../uploads/packages');
+  try {
+    if (!fs.existsSync(packagesDir)) {
+      fs.mkdirSync(packagesDir, { recursive: true });
+      console.log('Created uploads/packages directory');
+    }
+  } catch (dirErr) {
+    console.error('Failed to create uploads/packages directory:', dirErr);
+    return res.status(500).json({ message: 'Failed to create upload directory', error: dirErr.message });
+  }
+  next();
+}, upload.single('image'), (req, res) => {
+  try {
+    console.log('Upload request headers:', req.headers);
+    if (!req.file) {
+      console.error('No file uploaded');
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    console.log('Uploaded file:', req.file);
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/packages/${req.file.filename}`;
+    res.json({ success: true, imageUrl });
+  } catch (err) {
+    console.error('Image upload error:', err);
+    res.status(500).json({ message: 'Failed to upload image', error: err.message });
   }
 });
 
