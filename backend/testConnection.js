@@ -1,47 +1,47 @@
-const { Sequelize } = require('sequelize');
+const express = require('express');
+const cors = require('cors');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 
-console.log('🔍 Testing PostgreSQL Connection...');
-console.log('Database Config:', {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD ? '***' : 'NOT SET'
+// Test basic express server
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Test route
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is working!', timestamp: new Date() });
 });
+
+// Database connection test
+const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize({
-  database: process.env.DB_NAME,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  dialect: 'postgres',
-  logging: false,
-  dialectOptions: {
-    ssl: false
+  dialect: 'sqlite',
+  storage: './database.sqlite',
+  logging: false
+});
+
+app.get('/test-db', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    const User = require('./models/User');
+    const userCount = await User.count();
+    res.json({ 
+      message: 'Database connection successful!', 
+      userCount: userCount 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Database connection failed', 
+      error: error.message 
+    });
   }
 });
 
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Connection successful!');
-    
-    // Test a simple query
-    const result = await sequelize.query('SELECT NOW()');
-    console.log('✅ Database query test successful:', result[0][0]);
-    
-    await sequelize.close();
-    console.log('✅ Connection closed.');
-    
-  } catch (error) {
-    console.error('❌ Connection failed:', error.message);
-    console.log('\n🔧 Troubleshooting tips:');
-    console.log('1. Make sure PostgreSQL is running');
-    console.log('2. Check your config.env file');
-    console.log('3. Verify the database "travel_app" exists');
-    console.log('4. Check username and password');
-  }
-})(); 
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Test server running on port ${PORT}`);
+  console.log(`🔗 Test endpoint: http://localhost:${PORT}/test`);
+  console.log(`🔗 DB test endpoint: http://localhost:${PORT}/test-db`);
+}); 

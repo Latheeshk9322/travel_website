@@ -1,28 +1,19 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure storage
+// Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDir);
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
   },
-  filename: function (req, file, cb) {
-    // Create unique filename with timestamp
+  filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, 'image-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// File filter
 const fileFilter = (req, file, cb) => {
-  // Accept images only
+  // Accept only image files
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
@@ -30,40 +21,48 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Configure multer
 const upload = multer({
   storage: storage,
+  fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
-  fileFilter: fileFilter
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
 });
 
 // Single file upload
 const uploadSingle = upload.single('image');
 
 // Multiple files upload
-const uploadMultiple = upload.array('images', 10); // Max 10 images
+const uploadMultiple = upload.array('images', 5);
 
-// Error handling wrapper
-const handleUpload = (uploadMiddleware) => {
-  return (req, res, next) => {
-    uploadMiddleware(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
-        }
-        return res.status(400).json({ message: err.message });
-      } else if (err) {
-        return res.status(400).json({ message: err.message });
-      }
-      next();
+// Error handling middleware for multer
+const handleUploadError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ 
+        success: false,
+        error: 'File too large. Maximum size is 5MB.' 
+      });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Too many files. Maximum is 5 files.' 
+      });
+    }
+  }
+  if (err.message === 'Only image files are allowed!') {
+    return res.status(400).json({ 
+      success: false,
+      error: err.message 
     });
-  };
+  }
+  next(err);
 };
 
 module.exports = {
-  uploadSingle: handleUpload(uploadSingle),
-  uploadMultiple: handleUpload(uploadMultiple),
-  upload
+  upload,
+  uploadSingle,
+  uploadMultiple,
+  handleUploadError
 }; 
