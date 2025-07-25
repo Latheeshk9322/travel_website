@@ -1,20 +1,28 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, 'config.env') });
+
 const { sequelize } = require('./server');
 
-async function resetDatabase() {
+const resetDatabase = async () => {
   try {
     console.log('🔄 Resetting database...');
     
-    // Force sync will drop all tables and recreate them
+    // Drop all tables and recreate
     await sequelize.sync({ force: true });
     
-    console.log('✅ Database reset successfully!');
-    console.log('📝 All tables have been dropped and recreated.');
+    console.log('✅ Database reset completed successfully!');
+    console.log('💡 Run "node scripts/seedData.js" to populate with sample data');
     
-    process.exit(0);
   } catch (error) {
     console.error('❌ Error resetting database:', error);
-    process.exit(1);
+  } finally {
+    process.exit(0);
   }
+};
+
+// Run the reset function
+if (require.main === module) {
+  resetDatabase();
 }
 
-resetDatabase(); 
+module.exports = resetDatabase; 

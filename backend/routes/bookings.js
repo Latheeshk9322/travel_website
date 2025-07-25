@@ -4,6 +4,13 @@ const Booking = require('../models/Booking');
 const Package = require('../models/Package');
 const { protect, admin } = require('../middleware/auth');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Razorpay = require('razorpay');
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 const router = express.Router();
 
@@ -350,6 +357,109 @@ router.post('/:id/stripe-payment-intent', protect, async (req, res) => {
   } catch (error) {
     console.error('Stripe payment intent error:', error);
     res.status(500).json({ message: 'Failed to create Stripe payment session' });
+  }
+});
+
+// Create Razorpay order for booking
+router.post('/:id/razorpay-order', protect, async (req, res) => {
+  try {
+    const booking = await Booking.findOne({
+      where: { id: req.params.id, userId: req.user.id },
+      include: [
+        {
+          model: Package,
+          attributes: ['name', 'primaryImage']
+        }
+      ]
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    if (booking.paymentStatus === 'paid') {
+      return res.status(400).json({ message: 'Payment already completed' });
+    }
+
+    // Create Razorpay order
+    const options = {
+      amount: Math.round(booking.finalAmount * 100), // amount in paise
+      currency: 'INR',
+      receipt: booking.bookingNumber,
+      notes: {
+        bookingId: booking.id,
+        userId: req.user.id,
+        packageName: booking.Package?.name || 'Travel Package'
+      }
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      success: true,
+      order,
+      booking: {
+        id: booking.id,
+        bookingNumber: booking.bookingNumber,
+        finalAmount: booking.finalAmount,
+        packageName: booking.Package?.name
+      },
+      keyId: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (error) {
+    console.error('Razorpay order creation error:', error);
+    res.status(500).json({ message: 'Failed to create Razorpay order' });
+  }
+});
+
+// Verify Razorpay payment
+router.post('/:id/razorpay-verify', protect, async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({ message: 'Missing payment verification parameters' });
+    }
+
+    const booking = await Booking.findOne({
+      where: { id: req.params.id, userId: req.user.id }
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Verify signature
+    const crypto = require('crypto');
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest('hex');
+
+    if (expectedSignature === razorpay_signature) {
+      // Payment verified successfully
+      await booking.update({
+        paymentStatus: 'paid',
+        paymentMethod: 'razorpay',
+        paymentId: razorpay_payment_id,
+        status: 'confirmed'
+      });
+
+      res.json({
+        success: true,
+        message: 'Payment verified successfully',
+        booking
+      });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Payment verification failed' 
+      });
+    }
+  } catch (error) {
+    console.error('Razorpay verification error:', error);
+    res.status(500).json({ message: 'Payment verification failed' });
   }
 });
 
