@@ -327,20 +327,8 @@ export const bookingsAPI = {
     const response = await api.post('/bookings', data);
     return response.data;
   },
-  // Stripe payment integration
   createStripePaymentIntent: async (bookingId) => {
     const response = await api.post(`/bookings/${bookingId}/stripe-payment-intent`);
-    return response.data;
-  },
-
-  // Razorpay payment integration
-  createRazorpayOrder: async (bookingId) => {
-    const response = await api.post(`/bookings/${bookingId}/razorpay-order`);
-    return response.data;
-  },
-
-  verifyRazorpayPayment: async (bookingId, paymentData) => {
-    const response = await api.post(`/bookings/${bookingId}/razorpay-verify`, paymentData);
     return response.data;
   },
   payBooking: async (bookingId, paymentData) => {

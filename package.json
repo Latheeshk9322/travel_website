@@ -1,7 +1,7 @@
 {
-  "name": "travel-explorer",
+  "name": "travel-website-mern",
   "version": "1.0.0",
-  "description": "Full-stack travel booking website with React.js, Node.js, and SQLite",
+  "description": "Full-stack travel website using MERN stack",
   "main": "index.js",
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
@@ -10,33 +10,26 @@
     "dev": "concurrently \"npm run server:dev\" \"npm run client\"",
     "server:dev": "cd backend && npm run dev",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "build": "cd frontend && npm run build",
-    "setup": "npm run install-all && cd backend && node scripts/seedData.js",
-    "clean": "rm -rf node_modules && rm -rf backend/node_modules && rm -rf frontend/node_modules && rm -rf backend/travel_app.db",
-    "reset": "npm run clean && npm run setup"
+    "build": "cd frontend && npm run build"
   },
   "keywords": [
     "travel",
-    "booking",
-    "react",
-    "node",
-    "sqlite",
+    "mern",
+    "mongodb",
     "express",
-    "fullstack",
-    "travel-packages",
-    "payment-integration"
+    "react",
+    "node"
   ],
-  "author": "Travel Explorer Team",
+  "author": "Your Name",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/travel-explorer.git"
-  },
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+  "dependencies": {
+    "mongoose": "^8.16.3",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "razorpay": "^2.9.6",
+    "stripe": "^18.3.0"
   }
 }

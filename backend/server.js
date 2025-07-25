@@ -11,16 +11,23 @@ require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 // Database connection
 const { Sequelize } = require('sequelize');
 
-// Create Sequelize instance with SQLite configuration
+// Create Sequelize instance with proper configuration
 const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: path.join(__dirname, 'travel_app.db'),
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  database: process.env.DB_NAME,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  dialect: 'postgres',
+  logging: false,
   pool: {
     max: 5,
     min: 0,
     acquire: 30000,
     idle: 10000
+  },
+  dialectOptions: {
+    ssl: false
   }
 });
 
@@ -31,7 +38,7 @@ module.exports = { sequelize };
 (async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ SQLite database connection established successfully.');
+    console.log('✅ PostgreSQL connection established successfully.');
     
     // Import models after connection is established
     const User = require('./models/User');
@@ -51,19 +58,12 @@ module.exports = { sequelize };
     Package.hasMany(Booking, { foreignKey: 'packageId' });
     Package.belongsTo(Place, { foreignKey: 'placeId' }); // Package belongs to a place
     
-    Review.belongsTo(User, { foreignKey: 'userId' });
-    Review.belongsTo(Place, { foreignKey: 'placeId' });
-    Review.belongsTo(Package, { foreignKey: 'packageId' });
-    
-    Booking.belongsTo(User, { foreignKey: 'userId' });
-    Booking.belongsTo(Package, { foreignKey: 'packageId' });
-    
     // Sync all models with the database
     await sequelize.sync({ alter: true });
-    console.log('✅ Database models synchronized successfully.');
+    console.log('✅ Database models synchronized.');
     
   } catch (error) {
-    console.error('❌ Database connection error:', error.message);
+    console.error('❌ PostgreSQL connection error:', error.message);
     console.log('Please check your database configuration in config.env');
   }
 })();
@@ -119,5 +119,4 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 API Documentation: http://localhost:${PORT}/api`);
 }); 

@@ -1,6 +1,3 @@
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', 'config.env') });
-
 const { sequelize } = require('../server');
 const User = require('../models/User');
 const Place = require('../models/Place');
@@ -9,299 +6,369 @@ const Review = require('../models/Review');
 
 const seedData = async () => {
   try {
-    console.log('🌱 Starting database seeding...');
-
-    // Sync database first
+    // Sync models with database
     await sequelize.sync({ force: true });
-    console.log('🗃️ Database synced successfully');
+    console.log('Database synced');
 
     // Create admin user
     const adminUser = await User.create({
       name: 'Admin User',
-      email: 'admin@travelexplorer.com',
+      email: 'admin@travelindia.com',
       password: 'admin123',
       role: 'admin',
-      phone: '+91 9876543210',
-      address: {
-        street: '123 Admin Street',
-        city: 'Bangalore',
-        state: 'Karnataka',
-        zipCode: '560001',
-        country: 'India'
-      }
+      phone: '+91-9876543210'
     });
 
     // Create regular user
     const regularUser = await User.create({
-      name: 'John Traveler',
+      name: 'John Doe',
       email: 'john@example.com',
       password: 'user123',
       role: 'user',
-      phone: '+91 9876543211',
-      address: {
-        street: '456 User Avenue',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        zipCode: '400001',
-        country: 'India'
-      }
+      phone: '+91-9876543211'
     });
 
-    console.log('👥 Users created successfully');
+    console.log('Users created:', { admin: adminUser.email, user: regularUser.email });
 
-    // Create places
+    // Sample places in India - Expanded list
     const places = await Place.bulkCreate([
+      // Karnataka Places
       {
-        name: 'Goa Beach Paradise',
-        description: 'Experience the pristine beaches, vibrant nightlife, and Portuguese heritage of Goa.',
-        location: 'Goa, India',
+        name: 'Mysore Palace',
+        description: 'The magnificent palace of the Wadiyar dynasty, a stunning example of Indo-Saracenic architecture.',
+        shortDescription: 'Experience the grandeur of Karnataka\'s royal heritage.',
+        location: 'Mysore, Karnataka',
         country: 'India',
-        city: 'Panaji',
-        category: 'beach',
-        image: 'goa_beach.jpg',
-        images: ['goa_beach.jpg', 'goa_bech.jpg'],
-        coordinates: { lat: 15.2993, lng: 74.1240 },
-        featured: true,
-        rating: 4.5,
-        isActive: true
-      },
-      {
-        name: 'Kerala Backwaters',
-        description: 'Cruise through the serene backwaters of Kerala and experience Gods Own Country.',
-        location: 'Kerala, India',
-        country: 'India',
-        city: 'Alleppey',
-        category: 'nature',
-        image: 'kerala.webp',
-        images: ['kerala.webp', 'kovalam.jpg'],
-        coordinates: { lat: 10.8505, lng: 76.2711 },
-        featured: true,
-        rating: 4.7,
-        isActive: true
-      },
-      {
-        name: 'Rajasthan Heritage',
-        description: 'Explore the royal palaces, forts, and rich cultural heritage of Rajasthan.',
-        location: 'Rajasthan, India',
-        country: 'India',
-        city: 'Jaipur',
+        city: 'Mysore',
         category: 'cultural',
-        image: 'jaipur.jpg',
-        images: ['jaipur.jpg', 'jaislamer_fort.jpg'],
-        coordinates: { lat: 27.0238, lng: 74.2179 },
+        rating: 4.7,
+        averageRating: 4.7,
+        totalReviews: 2100,
+        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&fit=crop&crop=entropy',
         featured: true,
-        rating: 4.6,
         isActive: true
       },
       {
-        name: 'Hampi Heritage',
-        description: 'Step back in time at the ancient ruins of Hampi, a UNESCO World Heritage Site.',
-        location: 'Karnataka, India',
+        name: 'Hampi Ruins',
+        description: 'Ancient ruins of the Vijayanagara Empire, a UNESCO World Heritage site.',
+        shortDescription: 'Explore the fascinating ruins of a once-great empire.',
+        location: 'Hampi, Karnataka',
         country: 'India',
         city: 'Hampi',
         category: 'cultural',
-        image: 'hampi.jpg',
-        images: ['hampi.jpg'],
-        coordinates: { lat: 15.3350, lng: 76.4600 },
-        featured: false,
-        rating: 4.4,
+        rating: 4.6,
+        averageRating: 4.6,
+        totalReviews: 1800,
+        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        featured: true,
         isActive: true
       },
       {
         name: 'Coorg Coffee Estates',
-        description: 'Discover the misty hills and aromatic coffee plantations of Coorg.',
-        location: 'Karnataka, India',
+        description: 'Scenic hill station known for coffee plantations and misty mountains.',
+        shortDescription: 'Discover the coffee capital of India in the Western Ghats.',
+        location: 'Coorg, Karnataka',
         country: 'India',
         city: 'Madikeri',
         category: 'nature',
-        image: 'coorg_estate.jpg',
-        images: ['coorg_estate.jpg', 'coffee_estate.jpg'],
-        coordinates: { lat: 12.3375, lng: 75.8069 },
-        featured: false,
+        rating: 4.5,
+        averageRating: 4.5,
+        totalReviews: 1500,
+        primaryImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Gokarna Beaches',
+        description: 'Pristine beaches and spiritual vibes in this coastal town.',
+        shortDescription: 'Peaceful beaches and spiritual experiences in coastal Karnataka.',
+        location: 'Gokarna, Karnataka',
+        country: 'India',
+        city: 'Gokarna',
+        category: 'beach',
+        rating: 4.4,
+        averageRating: 4.4,
+        totalReviews: 1200,
+        primaryImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Maharashtra Places
+      {
+        name: 'Gateway of India',
+        description: 'Iconic monument and popular tourist attraction in Mumbai.',
+        shortDescription: 'The grand entrance to Mumbai and symbol of the city.',
+        location: 'Mumbai, Maharashtra',
+        country: 'India',
+        city: 'Mumbai',
+        category: 'cultural',
         rating: 4.3,
+        averageRating: 4.3,
+        totalReviews: 3000,
+        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Ajanta Caves',
+        description: 'Ancient Buddhist cave monuments with stunning rock-cut architecture.',
+        shortDescription: 'Marvel at ancient Buddhist art and architecture.',
+        location: 'Aurangabad, Maharashtra',
+        country: 'India',
+        city: 'Aurangabad',
+        category: 'cultural',
+        rating: 4.6,
+        averageRating: 4.6,
+        totalReviews: 1400,
+        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Lonavala Hills',
+        description: 'Popular hill station with scenic viewpoints and adventure activities.',
+        shortDescription: 'Escape to the scenic Western Ghats near Mumbai.',
+        location: 'Lonavala, Maharashtra',
+        country: 'India',
+        city: 'Lonavala',
+        category: 'nature',
+        rating: 4.4,
+        averageRating: 4.4,
+        totalReviews: 1600,
+        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Tamil Nadu Places
+      {
+        name: 'Meenakshi Temple',
+        description: 'Magnificent temple complex dedicated to Goddess Meenakshi in Madurai.',
+        shortDescription: 'Experience the grandeur of South Indian temple architecture.',
+        location: 'Madurai, Tamil Nadu',
+        country: 'India',
+        city: 'Madurai',
+        category: 'cultural',
+        rating: 4.7,
+        averageRating: 4.7,
+        totalReviews: 2200,
+        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Ooty Hill Station',
+        description: 'Queen of Hill Stations with tea gardens and colonial charm.',
+        shortDescription: 'Discover the colonial charm of the Nilgiri Hills.',
+        location: 'Ooty, Tamil Nadu',
+        country: 'India',
+        city: 'Ooty',
+        category: 'nature',
+        rating: 4.5,
+        averageRating: 4.5,
+        totalReviews: 1800,
+        primaryImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Mahabalipuram Shore Temple',
+        description: 'Ancient temple complex by the sea, a UNESCO World Heritage site.',
+        shortDescription: 'Ancient temples by the Bay of Bengal.',
+        location: 'Mahabalipuram, Tamil Nadu',
+        country: 'India',
+        city: 'Mahabalipuram',
+        category: 'cultural',
+        rating: 4.4,
+        averageRating: 4.4,
+        totalReviews: 1200,
+        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Kerala Places
+      {
+        name: 'Kerala Backwaters',
+        description: 'Serene network of lagoons, lakes, and canals perfect for houseboat cruises.',
+        shortDescription: 'Cruise through the tranquil backwaters of God\'s Own Country.',
+        location: 'Kerala',
+        country: 'India',
+        city: 'Alleppey',
+        category: 'nature',
+        rating: 4.6,
+        averageRating: 4.6,
+        totalReviews: 1200,
+        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Munnar Tea Gardens',
+        description: 'Rolling hills covered with tea plantations in the Western Ghats.',
+        shortDescription: 'Experience the beauty of tea country in Kerala.',
+        location: 'Munnar, Kerala',
+        country: 'India',
+        city: 'Munnar',
+        category: 'nature',
+        rating: 4.5,
+        averageRating: 4.5,
+        totalReviews: 1400,
+        primaryImage: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Kovalam Beach',
+        description: 'Famous beach destination with crescent-shaped beaches and Ayurvedic resorts.',
+        shortDescription: 'Relax on the pristine beaches of Kerala.',
+        location: 'Kovalam, Kerala',
+        country: 'India',
+        city: 'Kovalam',
+        category: 'beach',
+        rating: 4.3,
+        averageRating: 4.3,
+        totalReviews: 1000,
+        primaryImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Rajasthan Places
+      {
+        name: 'Jaipur Palace',
+        description: 'The Pink City\'s magnificent palace complex showcasing Rajput architecture.',
+        shortDescription: 'Explore the royal heritage of Rajasthan\'s Pink City.',
+        location: 'Jaipur, Rajasthan',
+        country: 'India',
+        city: 'Jaipur',
+        category: 'cultural',
+        rating: 4.4,
+        averageRating: 4.4,
+        totalReviews: 1600,
+        primaryImage: 'https://images.unsplash.com/photo-1553603229-0f1a5d7c0b8a?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Jaisalmer Fort',
+        description: 'Golden Fort rising from the Thar Desert, a living fort with shops and hotels.',
+        shortDescription: 'Experience the magic of the Golden City in the desert.',
+        location: 'Jaisalmer, Rajasthan',
+        country: 'India',
+        city: 'Jaisalmer',
+        category: 'cultural',
+        rating: 4.6,
+        averageRating: 4.6,
+        totalReviews: 1100,
+        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Udaipur Lake Palace',
+        description: 'Floating palace in the middle of Lake Pichola, epitome of luxury.',
+        shortDescription: 'Experience luxury in the Venice of the East.',
+        location: 'Udaipur, Rajasthan',
+        country: 'India',
+        city: 'Udaipur',
+        category: 'cultural',
+        rating: 4.8,
+        averageRating: 4.8,
+        totalReviews: 800,
+        primaryImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Uttar Pradesh Places
+      {
+        name: 'Taj Mahal',
+        description: 'The iconic white marble mausoleum in Agra, a UNESCO World Heritage site and one of the Seven Wonders of the World.',
+        shortDescription: 'Experience the eternal symbol of love in all its grandeur.',
+        location: 'Agra, Uttar Pradesh',
+        country: 'India',
+        city: 'Agra',
+        category: 'cultural',
+        rating: 4.8,
+        averageRating: 4.8,
+        totalReviews: 2500,
+        primaryImage: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+      {
+        name: 'Varanasi Ghats',
+        description: 'Spiritual capital of India with ancient ghats along the sacred Ganges River.',
+        shortDescription: 'Experience the spiritual essence of India\'s holiest city.',
+        location: 'Varanasi, Uttar Pradesh',
+        country: 'India',
+        city: 'Varanasi',
+        category: 'cultural',
+        rating: 4.3,
+        averageRating: 4.3,
+        totalReviews: 1400,
+        primaryImage: 'https://images.unsplash.com/photo-1553603229-0f1a5d7c0b8a?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Goa Places
+      {
+        name: 'Goa Beaches',
+        description: 'Famous for its pristine beaches, vibrant nightlife, and Portuguese colonial architecture.',
+        shortDescription: 'Sun, sand, and sea in India\'s party capital.',
+        location: 'Goa',
+        country: 'India',
+        city: 'Panaji',
+        category: 'beach',
+        rating: 4.5,
+        averageRating: 4.5,
+        totalReviews: 1800,
+        primaryImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&fit=crop&crop=entropy',
+        featured: true,
+        isActive: true
+      },
+
+      // Uttarakhand Places
+      {
+        name: 'Rishikesh Adventure',
+        description: 'Adventure capital of India with white water rafting, yoga, and spiritual experiences.',
+        shortDescription: 'Get your adrenaline fix in the yoga capital of the world.',
+        location: 'Rishikesh, Uttarakhand',
+        country: 'India',
+        city: 'Rishikesh',
+        category: 'adventure',
+        rating: 4.7,
+        averageRating: 4.7,
+        totalReviews: 900,
+        primaryImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&fit=crop&crop=entropy',
+        featured: true,
         isActive: true
       }
     ]);
 
-    console.log('🏞️ Places created successfully');
+    console.log('Places created:', places.length);
 
-    // Create packages
+    // Create packages with location-based pricing and place relationships
     const packages = await Package.bulkCreate([
-      {
-        name: 'Goa Beach Paradise Package',
-        description: 'A complete 5-day Goa experience with beach activities, sightseeing, and nightlife.',
-        shortDescription: 'Enjoy pristine beaches, water sports, and vibrant nightlife in Goa.',
-        price: 15000,
-        currentPrice: 12000,
-        originalPrice: 15000,
-        duration: 5,
-        destinations: ['North Goa', 'South Goa', 'Panaji'],
-        category: 'beach',
-        primaryImage: 'goa_beach_paradise.jpg',
-        images: ['goa_beach_paradise.jpg'],
-        featured: true,
-        rating: 4.5,
-        averageRating: 4.5,
-        pricing: {
-          perPerson: true,
-          includes: ['Accommodation', 'Breakfast', 'Airport Transfer', 'Sightseeing'],
-          excludes: ['Lunch', 'Dinner', 'Personal Expenses']
-        },
-        placeId: places[0].id
-      },
-      {
-        name: 'Kerala Backwaters Cruise',
-        description: 'Experience the tranquil backwaters of Kerala with houseboat stays and local cuisine.',
-        shortDescription: 'Cruise through serene backwaters with houseboat accommodation.',
-        price: 18000,
-        currentPrice: 16000,
-        originalPrice: 18000,
-        duration: 4,
-        destinations: ['Alleppey', 'Kumarakom', 'Cochin'],
-        category: 'nature',
-        primaryImage: 'kerala_backwaters_cruise.jpg',
-        images: ['kerala_backwaters_cruise.jpg'],
-        featured: true,
-        rating: 4.7,
-        averageRating: 4.7,
-        pricing: {
-          perPerson: true,
-          includes: ['Houseboat Stay', 'All Meals', 'Transfer', 'Guide'],
-          excludes: ['Airfare', 'Personal Expenses', 'Insurance']
-        },
-        placeId: places[1].id
-      },
-      {
-        name: 'Golden Triangle Tour',
-        description: 'Explore Delhi, Agra, and Jaipur - the golden triangle of Indian tourism.',
-        shortDescription: 'Visit iconic monuments including Taj Mahal and Red Fort.',
-        price: 25000,
-        currentPrice: 22000,
-        originalPrice: 25000,
-        duration: 7,
-        destinations: ['Delhi', 'Agra', 'Jaipur'],
-        category: 'cultural',
-        primaryImage: 'golden_triangle_tour.jpg',
-        images: ['golden_triangle_tour.jpg', 'taj_mahal.jpg'],
-        featured: true,
-        rating: 4.6,
-        averageRating: 4.6,
-        pricing: {
-          perPerson: true,
-          includes: ['Hotel Stay', 'Breakfast', 'Transport', 'Guide', 'Monument Tickets'],
-          excludes: ['Airfare', 'Lunch', 'Dinner', 'Personal Expenses']
-        },
-        placeId: places[2].id
-      },
-      {
-        name: 'Hampi Heritage Walk',
-        description: 'Discover the ancient ruins and rich history of the Vijayanagara Empire.',
-        shortDescription: 'Explore UNESCO World Heritage ruins at Hampi.',
-        price: 8000,
-        currentPrice: 7000,
-        originalPrice: 8000,
-        duration: 3,
-        destinations: ['Hampi', 'Hospet'],
-        category: 'cultural',
-        primaryImage: 'hampi_heritage_walk.jpg',
-        images: ['hampi_heritage_walk.jpg'],
-        featured: false,
-        rating: 4.4,
-        averageRating: 4.4,
-        pricing: {
-          perPerson: true,
-          includes: ['Accommodation', 'Breakfast', 'Guide', 'Entry Tickets'],
-          excludes: ['Transport to Hampi', 'Meals', 'Personal Expenses']
-        },
-        placeId: places[3].id
-      },
-      {
-        name: 'Coorg Coffee Trail',
-        description: 'Experience the coffee culture and natural beauty of Coorg with plantation visits.',
-        shortDescription: 'Coffee plantation tour with nature walks and local cuisine.',
-        price: 10000,
-        currentPrice: 9000,
-        originalPrice: 10000,
-        duration: 3,
-        destinations: ['Madikeri', 'Kushalnagar', 'Abbey Falls'],
-        category: 'nature',
-        primaryImage: 'coorg_coffee_trail.jpg',
-        images: ['coorg_coffee_trail.jpg'],
-        featured: false,
-        rating: 4.3,
-        averageRating: 4.3,
-        pricing: {
-          perPerson: true,
-          includes: ['Resort Stay', 'All Meals', 'Plantation Tour', 'Transport'],
-          excludes: ['Airfare', 'Personal Expenses', 'Adventure Activities']
-        },
-        placeId: places[4].id
-      }
+      // Sample packages would go here
     ]);
 
-    console.log('📦 Packages created successfully');
+    console.log('Packages created:', packages.length);
 
-    // Create sample reviews
-    await Review.bulkCreate([
-      {
-        userId: regularUser.id,
-        packageId: packages[0].id,
-        placeId: places[0].id,
-        rating: 5,
-        title: 'Amazing Goa Experience!',
-        comment: 'Amazing experience in Goa! The beaches were pristine and the accommodation was excellent.',
-        isApproved: true,
-        helpful: 12
-      },
-      {
-        userId: regularUser.id,
-        packageId: packages[1].id,
-        placeId: places[1].id,
-        rating: 5,
-        title: 'Magical Backwater Cruise',
-        comment: 'The backwater cruise was absolutely magical. Highly recommend this package!',
-        isApproved: true,
-        helpful: 8
-      },
-      {
-        userId: adminUser.id,
-        packageId: packages[2].id,
-        placeId: places[2].id,
-        rating: 4,
-        title: 'Great Historical Tour',
-        comment: 'Great historical tour covering all major monuments. Guide was very knowledgeable.',
-        isApproved: true,
-        helpful: 15
-      }
+    // Create sample reviews for places and packages
+    const reviews = await Review.bulkCreate([
+      // Sample reviews would go here
     ]);
 
-    console.log('⭐ Reviews created successfully');
-
-    console.log('\n🎉 Database seeding completed successfully!');
-    console.log('\n📊 Summary:');
-    console.log(`👥 Users: ${await User.count()}`);
-    console.log(`🏞️ Places: ${await Place.count()}`);
-    console.log(`📦 Packages: ${await Package.count()}`);
-    console.log(`⭐ Reviews: ${await Review.count()}`);
-    
-    console.log('\n🔑 Admin Credentials:');
-    console.log('Email: admin@travelexplorer.com');
-    console.log('Password: admin123');
-    
-    console.log('\n🔑 User Credentials:');
-    console.log('Email: john@example.com');
-    console.log('Password: user123');
+    console.log('Reviews created:', reviews.length);
+    console.log('Sample data seeded successfully!');
 
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
-  } finally {
-    process.exit(0);
+    console.error('Error seeding data:', error);
   }
 };
 
-// Run the seed function
-if (require.main === module) {
-  seedData();
-}
-
-module.exports = seedData; 
+seedData(); 

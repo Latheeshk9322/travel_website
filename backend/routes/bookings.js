@@ -4,13 +4,6 @@ const Booking = require('../models/Booking');
 const Package = require('../models/Package');
 const { protect, admin } = require('../middleware/auth');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Razorpay = require('razorpay');
-
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
 
 const router = express.Router();
 

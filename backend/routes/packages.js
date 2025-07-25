@@ -50,13 +50,11 @@ router.get('/', optionalAuth, [
     
     if (req.query.featured) where.featured = req.query.featured === 'true';
     if (req.query.category) where.category = req.query.category;
-    // Now supports filtering by place ID as destinations can contain place IDs
-    if (req.query.placeId) {
-      const placeId = parseInt(req.query.placeId);
-      if (!isNaN(placeId)) {
-        where.placeId = placeId; // Direct filtering by associated place
-      }
-    }
+    // Note: placeId filtering is disabled because destinations contain place names, not place IDs
+    // TODO: Update destinations to store place IDs instead of names for proper filtering
+    // if (req.query.placeId) {
+    //   where.destinations = sequelize.literal(`destinations::jsonb @> '["${parseInt(req.query.placeId)}"]'::jsonb`);
+    // }
 
     // Build search query
     if (req.query.search) {

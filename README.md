@@ -1,6 +1,6 @@
-# Travel Explorer - Full Stack Travel Website ✈️
+# Travel Explorer - Full Stack Travel Website
 
-A comprehensive travel booking website built with React.js, Node.js, and SQLite featuring tourist destinations, travel packages, user reviews, payment integration, and an admin dashboard.
+A comprehensive travel website built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring tourist destinations, travel packages, user reviews, and an admin dashboard.
 
 ## 🌟 Features
 
@@ -8,21 +8,19 @@ A comprehensive travel booking website built with React.js, Node.js, and SQLite 
 - **Browse Destinations**: Explore tourist places with photos, descriptions, and location details
 - **Travel Packages**: View curated travel packages with real-time pricing and seasonal discounts
 - **User Reviews**: Read and write reviews for places and packages
-- **User Authentication**: Secure registration and login system with JWT
+- **User Authentication**: Secure registration and login system
 - **User Profiles**: Manage personal information and preferences
-- **Booking System**: Complete booking flow with multiple payment options
-- **Payment Integration**: Integrated with Stripe and Razorpay for secure payments
 - **Favorites**: Save favorite places and packages
 - **Search & Filter**: Advanced search and filtering capabilities
-- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Responsive Design**: Mobile-friendly interface
 
 ### For Admins
-- **Admin Dashboard**: Comprehensive management interface with analytics
+- **Admin Dashboard**: Comprehensive management interface
 - **Content Management**: Add, edit, and delete places and packages
 - **Review Moderation**: Approve, reject, or edit user reviews
 - **User Management**: View and manage user accounts
-- **Booking Management**: Track and manage all bookings
 - **Analytics**: View statistics and insights
+- **Discount Management**: Create and manage seasonal discounts
 - **Featured Content**: Highlight special places and packages
 
 ## 🛠️ Tech Stack
@@ -30,13 +28,11 @@ A comprehensive travel booking website built with React.js, Node.js, and SQLite 
 ### Backend
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
-- **SQLite** - Database (with Sequelize ORM)
-- **Sequelize** - ORM for database operations
+- **MongoDB** - Database
+- **Mongoose** - ODM for MongoDB
 - **JWT** - Authentication
 - **bcryptjs** - Password hashing
 - **multer** - File uploads
-- **Stripe** - Payment processing
-- **Razorpay** - Alternative payment gateway
 - **cors** - Cross-origin resource sharing
 - **helmet** - Security headers
 - **express-rate-limit** - Rate limiting
@@ -49,19 +45,19 @@ A comprehensive travel booking website built with React.js, Node.js, and SQLite 
 - **Lucide React** - Icon library
 - **React Hook Form** - Form handling
 - **Axios** - HTTP client
-- **React Hot Toast** - Notifications
 
 ## 📁 Project Structure
 
 ```
 travel-explorer/
 ├── backend/                 # Backend API
-│   ├── config.env          # Environment configuration
+│   ├── config/             # Configuration files
+│   ├── controllers/        # Route controllers
 │   ├── middleware/         # Custom middleware
-│   ├── models/            # Database models
+│   ├── models/            # MongoDB models
 │   ├── routes/            # API routes
-│   ├── scripts/           # Database scripts
 │   ├── uploads/           # File uploads
+│   ├── .env.example       # Environment variables example
 │   ├── package.json       # Backend dependencies
 │   └── server.js          # Server entry point
 ├── frontend/              # Frontend React app
@@ -91,6 +87,7 @@ travel-explorer/
 
 ### Prerequisites
 - Node.js (v14 or higher)
+- MongoDB (v4.4 or higher)
 - npm or yarn
 
 ### Installation
@@ -103,66 +100,50 @@ travel-explorer/
 
 2. **Install dependencies**
    ```bash
-   # Install all dependencies
-   npm run install-all
+   # Install root dependencies
+   npm install
+   
+   # Install backend dependencies
+   cd backend
+   npm install
+   
+   # Install frontend dependencies
+   cd ../frontend
+   npm install
    ```
 
 3. **Environment Setup**
-   The backend is pre-configured with development settings. For production, update `backend/config.env`:
-   ```env
-   # Database Configuration
-   DATABASE_URL=sqlite:./travel_app.db
-
-   # JWT Configuration
-   JWT_SECRET=your_jwt_secret_key_change_in_production
-   JWT_EXPIRE=30d
-
-   # Stripe API Keys (Replace with your actual keys)
-   STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-   STRIPE_SECRET_KEY=your_stripe_secret_key
-   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-
-   # Razorpay API Keys (Replace with your actual keys)
-   RAZORPAY_KEY_ID=your_razorpay_key_id
-   RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-
-   # Frontend URL
-   FRONTEND_URL=http://localhost:3000
-   ```
-
-4. **Setup Database**
    ```bash
-   # Setup database with sample data
+   # Backend environment
    cd backend
-   node scripts/seedData.js
+   cp .env.example .env
+   ```
+   
+   Edit `backend/.env` with your configuration:
+   ```env
+   PORT=5000
+   DB_HOST=localhost
+   DB_USER=postgres
+   DB_PASSWORD=your-db-password
+   DB_NAME=travel_app
+   DB_PORT=5432
+   JWT_SECRET=your-jwt-secret-key
+   JWT_EXPIRE=7d
+   NODE_ENV=development
    ```
 
-5. **Start the development servers**
+4. **Start the development servers**
    ```bash
-   # Start both servers (from root directory)
+   # Start backend server (from backend directory)
+   npm run dev
+   
+   # Start frontend server (from frontend directory)
    npm start
-   
-   # Or start individually:
-   # Backend server (from backend directory)
-   npm run server:dev
-   
-   # Frontend server (from frontend directory)
-   npm run client
    ```
 
-6. **Access the application**
+5. **Access the application**
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:5000
-
-## 🔑 Default Login Credentials
-
-### Admin Account
-- Email: `admin@travelexplorer.com`
-- Password: `admin123`
-
-### User Account
-- Email: `john@example.com`
-- Password: `user123`
 
 ## 📚 API Documentation
 
@@ -171,6 +152,7 @@ travel-explorer/
 - `POST /api/auth/login` - User login
 - `GET /api/auth/profile` - Get user profile
 - `PUT /api/auth/profile` - Update user profile
+- `PUT /api/auth/password` - Change password
 
 ### Places Endpoints
 - `GET /api/places` - Get all places (with filtering)
@@ -178,6 +160,7 @@ travel-explorer/
 - `POST /api/places` - Create new place (admin only)
 - `PUT /api/places/:id` - Update place (admin only)
 - `DELETE /api/places/:id` - Delete place (admin only)
+- `GET /api/places/featured` - Get featured places
 
 ### Packages Endpoints
 - `GET /api/packages` - Get all packages (with filtering)
@@ -185,99 +168,64 @@ travel-explorer/
 - `POST /api/packages` - Create new package (admin only)
 - `PUT /api/packages/:id` - Update package (admin only)
 - `DELETE /api/packages/:id` - Delete package (admin only)
+- `GET /api/packages/featured` - Get featured packages
 
-### Bookings Endpoints
-- `GET /api/bookings` - Get user bookings
-- `POST /api/bookings` - Create new booking
-- `POST /api/bookings/:id/stripe-payment-intent` - Stripe payment
-- `POST /api/bookings/:id/razorpay-order` - Razorpay payment
-- `POST /api/bookings/:id/razorpay-verify` - Verify Razorpay payment
+### Reviews Endpoints
+- `GET /api/reviews` - Get reviews (with filtering)
+- `POST /api/reviews` - Create new review
+- `PUT /api/reviews/:id` - Update review
+- `DELETE /api/reviews/:id` - Delete review
+- `PUT /api/reviews/:id/helpful` - Mark review as helpful
 
 ### Admin Endpoints
-- `GET /api/admin/dashboard` - Get dashboard statistics
+- `GET /api/admin/dashboard` - Get dashboard stats
 - `GET /api/admin/reviews/pending` - Get pending reviews
 - `PUT /api/admin/reviews/:id/moderate` - Moderate review
-
-## 💳 Payment Integration
-
-The application supports multiple payment gateways:
-
-### Stripe Integration
-- Card payments
-- International transactions
-- Webhook support for payment confirmation
-
-### Razorpay Integration
-- UPI, Cards, Net Banking
-- Indian payment methods
-- Real-time payment verification
+- `PUT /api/admin/places/:id/feature` - Toggle place featured status
+- `PUT /api/admin/packages/:id/feature` - Toggle package featured status
 
 ## 🔐 Authentication & Authorization
 
-- **JWT-based authentication** with secure token management
-- **Role-based access control** (User/Admin)
-- **Protected routes** for authenticated users
-- **Admin-only sections** for content management
+The application uses JWT (JSON Web Tokens) for authentication:
 
-## 🎨 UI Features
+- **User Role**: Regular users can browse, review, and manage their profiles
+- **Admin Role**: Admins have full access to manage content and moderate reviews
+- **Protected Routes**: Certain endpoints require authentication
+- **Role-based Access**: Admin-only endpoints are protected
 
-- **Modern responsive design** with Tailwind CSS
-- **Dark/Light theme support**
-- **Interactive components** with smooth animations
-- **Image galleries** with lightbox functionality
-- **Advanced filtering** and search capabilities
+## 🎨 UI Components
+
+The frontend includes reusable components:
+- **Layout Components**: Header, Footer, Navigation
+- **Authentication Components**: Login, Register, Protected Routes
+- **UI Components**: Loading Spinner, Buttons, Forms, Cards
+- **Search Components**: Search Modal with real-time results
 
 ## 📱 Responsive Design
 
-Fully responsive design optimized for:
-- Desktop computers (1200px+)
-- Tablets (768px - 1199px)
-- Mobile phones (320px - 767px)
+The application is fully responsive and optimized for:
+- Desktop computers
+- Tablets
+- Mobile phones
 
 ## 🚀 Deployment
 
 ### Backend Deployment
-1. Configure environment variables for production
-2. Set up your preferred database (SQLite included for development)
-3. Deploy to platforms like Railway, Heroku, or DigitalOcean
+1. Set up environment variables for production
+2. Configure MongoDB connection
+3. Deploy to platforms like Heroku, Railway, or DigitalOcean
 
 ### Frontend Deployment
 1. Build the production version: `npm run build`
 2. Deploy to platforms like Vercel, Netlify, or AWS S3
 
-## 🧪 Testing
-
-```bash
-# Run backend tests
-cd backend
-npm test
-
-# Run frontend tests
-cd frontend
-npm test
-```
-
-## 📊 Features Implemented
-
-✅ **User Authentication & Authorization**
-✅ **CRUD Operations for Places & Packages**
-✅ **Review System with Moderation**
-✅ **Booking System**
-✅ **Payment Integration (Stripe & Razorpay)**
-✅ **Admin Dashboard with Analytics**
-✅ **File Upload for Images**
-✅ **Advanced Search & Filtering**
-✅ **Responsive Design**
-✅ **Rate Limiting & Security**
-✅ **Database Seeding**
-
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
@@ -289,18 +237,16 @@ For support and questions:
 - Create an issue in the repository
 - Contact the development team
 
-## 🚀 Future Enhancements
+## 🔮 Future Enhancements
 
-- Real-time notifications with WebSocket
-- Advanced analytics dashboard
-- Mobile app development with React Native
+- Real-time notifications
+- Payment integration
+- Booking system
 - Social media integration
+- Advanced analytics
 - Multi-language support
-- Advanced booking management
-- Integration with travel APIs
+- Mobile app development
 
 ---
 
-**Built with ❤️ using React.js, Node.js, and modern web technologies**
-
-🌟 **Star this repository if you find it helpful!** 🌟 
+**Built with ❤️ using the MERN stack** 
