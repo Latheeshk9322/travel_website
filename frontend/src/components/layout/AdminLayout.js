@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   LayoutDashboard, 
@@ -117,7 +117,7 @@ const AdminLayout = ({ children }) => {
 
         {/* Page content */}
         <main className="flex-1">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

@@ -17,6 +17,48 @@ const Home = () => {
     () => packagesAPI.getFeatured()
   );
 
+  // Add a mapping from place names to local image files
+  const placeImageMap = {
+    'Ajanta Caves': '/images/Ajanta_caves.jpg',
+    'Kerala Backwaters': '/images/kerala.webp', // or '/images/Kerala Backwaters Cruise.jpg' if you prefer
+    'Jaisalmer Fort': '/images/jaislamer_fort.jpg',
+    'Coorg Coffee Estates': '/images/coorg_estate.jpg',
+    'Gateway of India': '/images/gatway.jpg',
+    'Mysore Palace': '/images/mysore.jpg',
+    'Goa Beaches': '/images/goa_bech.jpg',
+    'Gokarna Beaches': '/images/gokarna_beach.webp',
+    'Hampi Ruins': '/images/hampi.jpg',
+    'Jaipur Palace': '/images/jaipur.jpg',
+    'Kovalam Beach': '/images/kovalam.jpg',
+    'Lonavala Hills': '/images/Lonavala.webp',
+    'Mahabalipuram Shore Temple': '/images/mahabalipuram.jpg',
+    'Taj Mahal': '/images/taj_mahal.jpg',
+    'Meenakshi Temple': '/images/meenakshi_temple.jpg',
+    'Udaipur Lake Palace': '/images/udaipur_lake_palace.jpg',
+    'Munnar Tea Gardens': '/images/packages/munnar_tea_experience.jpg',
+    'Rishikesh Adventure': '/images/Rishikesh_Adventure.jpg'
+  };
+
+  // Add a mapping from package names to local image files
+  const packageImageMap = {
+    'Ajanta Ellora Heritage': '/images/packages/ajanta_ellora_heritage.jpg',
+    'Coorg Coffee Trail': '/images/packages/coorg_coffee_trail.jpg',
+    'Goa Beach Paradise': '/images/packages/goa_beach_paradise.jpg',
+    'Gokarna Beach Retreat': '/images/packages/gokarna_beach_retreat.jpg',
+    'Golden Triangle Tour': '/images/packages/golden_triangle_tour.jpg',
+    'Hampi Heritage Walk': '/images/packages/hampi_heritage_walk.jpg',
+    'Jaisalmer Desert Safari': '/images/packages/jaisalmer_desert_safari.avif',
+    'Kerala Backwaters Cruise': '/images/packages/kerala_backwaters_cruise.jpg',
+    'Luxury Rajasthan Tour': '/images/packages/luxury_rajasthan_tour.jpg',
+    'Madurai Temple Tour': '/images/packages/madurai_temple_tour.avif',
+    'Mumbai City Explorer': '/images/packages/mumbai_city_explorer.jpg',
+    'Kudla': '/images/packages/kudla.jpg',
+    'Mysore Heritage Tour': '/images/packages/mysore_heritage_tour.jpg',
+    'Varanasi Spiritual Journey': '/images/packages/varanasi_spiritual_journey.jpg',
+    'Munnar Tea Experience': '/images/packages/munnar_tea_experience.jpg',
+    'Ooty Tea Gardens': '/images/packages/ooty_tea_gardens.avif'
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -75,7 +117,7 @@ const Home = () => {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img
-                      src={place.primaryImage || '/placeholder-place.jpg'}
+                      src={placeImageMap[place.name] || ''}
                       alt={place.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -156,7 +198,7 @@ const Home = () => {
                 >
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img
-                      src={pkg.primaryImage || '/placeholder-package.jpg'}
+                      src={packageImageMap[pkg.name] || ''}
                       alt={pkg.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />

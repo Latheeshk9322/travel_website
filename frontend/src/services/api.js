@@ -227,6 +227,14 @@ export const usersAPI = {
     const response = await api.put(`/users/${id}/role`, { role });
     return response.data;
   },
+  uploadProfileImage: async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post('/users/profile-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
 };
 
 // Admin API
@@ -297,6 +305,10 @@ export const adminAPI = {
   },
   getUserStats: async () => {
     const response = await api.get('/admin/users/stats');
+    return response.data;
+  },
+  createPlace: async (placeData) => {
+    const response = await api.post('/admin/places', placeData);
     return response.data;
   },
 };

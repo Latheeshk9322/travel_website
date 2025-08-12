@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { protect, admin } = require('../middleware/auth');
+const { uploadSingle } = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -40,7 +41,12 @@ router.get('/profile', protect, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, [
   body('name').optional().trim().isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
-  body('phone').optional().isMobilePhone().withMessage('Please provide a valid phone number')
+  body('phone').optional().isMobilePhone().withMessage('Please provide a valid phone number'),
+  body('bio').optional().isString().isLength({ max: 500 }).withMessage('Bio must be a string up to 500 characters'),
+  body('address').optional(),
+  body('dateOfBirth').optional().isISO8601().withMessage('Date of birth must be a valid date'),
+  body('gender').optional().isIn(['male', 'female', 'other']).withMessage('Gender must be male, female, or other'),
+  // Removed preferences validation
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -53,7 +59,11 @@ router.put('/profile', protect, [
       return res.status(404).json({ message: 'User not found' });
     }
 
-    await user.update(req.body);
+    // Remove preferences from update payload if present
+    const updatePayload = { ...req.body };
+    delete updatePayload.preferences;
+
+    await user.update(updatePayload);
 
     res.json({
       success: true,
@@ -65,7 +75,11 @@ router.put('/profile', protect, [
         role: user.role,
         avatar: user.avatar,
         phone: user.phone,
-        address: user.address
+        bio: user.bio,
+        address: user.address,
+        dateOfBirth: user.dateOfBirth,
+        gender: user.gender,
+        preferences: user.preferences
       }
     });
   } catch (error) {
@@ -178,6 +192,28 @@ router.put('/preferences', protect, async (req, res) => {
     });
   } catch (error) {
     console.error('Update preferences error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/users/profile-image
+// @desc    Upload user profile image
+// @access  Private
+router.post('/profile-image', protect, uploadSingle, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file uploaded' });
+    }
+    // Save image path (relative to /uploads)
+    user.avatar = `/uploads/${req.file.filename}`;
+    await user.save();
+    res.json({ success: true, profileImage: user.avatar });
+  } catch (error) {
+    console.error('Profile image upload error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -5,6 +5,7 @@ import { Plus, Edit, Trash2, Eye, Search, Filter, Package, RefreshCw } from 'luc
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { formatINRSimple } from '../../utils/currencyFormatter';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const Packages = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -219,7 +220,7 @@ const Packages = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => setEditingPackage(pkg)}
+                          onClick={() => { setEditingPackage(pkg); setShowAddModal(true); }}
                           className="text-blue-600 hover:text-blue-900"
                           title="Edit"
                         >
@@ -299,6 +300,7 @@ const PackageForm = ({ package: pkg, onClose, onSuccess }) => {
   });
 
   const [newDestination, setNewDestination] = useState('');
+  const [imagePreview, setImagePreview] = useState(formData.primaryImage || '');
 
   const mutation = useMutation(
     (data) => pkg ? adminAPI.updatePackage(pkg.id, data) : adminAPI.createPackage(data),
@@ -315,7 +317,29 @@ const PackageForm = ({ package: pkg, onClose, onSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutation.mutate(formData);
+    // Ensure all required fields for the Package model are present and valid
+    const priceValue = formData.currentPrice || formData.price || 0;
+    const payload = {
+      ...formData,
+      price: priceValue,
+      currentPrice: priceValue,
+      originalPrice: formData.originalPrice || priceValue,
+      destinations: formData.destinations || [],
+      category: formData.category || 'adventure',
+      duration: formData.duration || 1,
+      description: formData.description || '',
+      name: formData.name || '',
+      shortDescription: formData.shortDescription || '',
+      isActive: formData.isActive !== undefined ? formData.isActive : true,
+      featured: formData.featured !== undefined ? formData.featured : false,
+      primaryImage: formData.primaryImage || '',
+      image: formData.image || '',
+      rating: formData.rating || 0,
+      averageRating: formData.averageRating || 0,
+      locationBasedPricing: formData.locationBasedPricing || {},
+      pricing: formData.pricing || { perPerson: true, includes: [], excludes: [] },
+    };
+    mutation.mutate(payload);
   };
 
   const addDestination = () => {
@@ -333,6 +357,39 @@ const PackageForm = ({ package: pkg, onClose, onSuccess }) => {
       ...prev,
       destinations: prev.destinations.filter((_, i) => i !== index)
     }));
+  };
+
+  const testUploadEndpoint = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const res = await axios.get(`${apiUrl}/api/admin/packages/upload-image/test`);
+      toast.success(res.data.message || 'Upload endpoint is reachable');
+    } catch (err) {
+      toast.error('Upload endpoint test failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formDataUpload = new FormData();
+    formDataUpload.append('image', file);
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const uploadUrl = `${apiUrl}/api/admin/packages/upload-image`;
+      const token = localStorage.getItem('token');
+      const res = await axios.post(uploadUrl, formDataUpload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      setFormData((prev) => ({ ...prev, primaryImage: res.data.imageUrl }));
+      setImagePreview(res.data.imageUrl);
+    } catch (err) {
+      console.error('Image upload error:', err);
+      toast.error('Failed to upload image: ' + (err.response?.data?.message || err.message) + (err.response ? ` (Status: ${err.response.status})` : ''));
+    }
   };
 
   return (
@@ -414,14 +471,12 @@ const PackageForm = ({ package: pkg, onClose, onSuccess }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Primary Image URL</label>
-        <input
-          type="url"
-          value={formData.primaryImage}
-          onChange={(e) => setFormData({ ...formData, primaryImage: e.target.value })}
-          className="input"
-          placeholder="https://example.com/image.jpg"
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-1">Package Image</label>
+        <input type="file" accept="image/*" onChange={handleImageChange} className="input" />
+        <button type="button" onClick={testUploadEndpoint} className="btn-secondary mt-2">Test Upload Endpoint</button>
+        {imagePreview && (
+          <img src={imagePreview} alt="Preview" className="w-32 h-32 object-cover mt-2 rounded" />
+        )}
       </div>
 
       <div>
